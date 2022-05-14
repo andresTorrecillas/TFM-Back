@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use App\Repository\SongRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\ArrayShape;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: SongRepository::class)]
-class Song
+class Song implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -46,5 +48,15 @@ class Song
         $this->lyrics = $lyrics;
 
         return $this;
+    }
+
+    #[ArrayShape(['id' => "int", 'title' => "string", 'lyrics' => "null|string"])]
+    public function jsonSerialize(): array
+    {
+        return array(
+            'id'=>$this->id??0,
+            'title'=>$this->title,
+            'lyrics'=>$this->lyrics
+        );
     }
 }
