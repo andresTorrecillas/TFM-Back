@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\SongRepository;
 use Doctrine\ORM\Mapping as ORM;
+use http\Exception\InvalidArgumentException;
 use JetBrains\PhpStorm\ArrayShape;
 use JsonSerializable;
 
@@ -15,7 +16,7 @@ class Song implements JsonSerializable
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 60)]
+    #[ORM\Column(type: 'string', length: 60, unique: true)]
     private string $title;
 
     #[ORM\Column(type: 'text', nullable: true)]
@@ -43,11 +44,25 @@ class Song implements JsonSerializable
         return $this->lyrics;
     }
 
-    public function setLyrics(?string $lyrics): self
+    public function setLyrics(string $lyrics): bool
     {
-        $this->lyrics = $lyrics;
+        if($this->checkValidInputLyrics($lyrics))
+        {
+            $lyrics = $this->escapeSpecialCharacters($lyrics);
+            $this->lyrics = $lyrics;
+            return true;
+        }
+        return false;
+    }
 
-        return $this;
+    private function checkValidInputLyrics(string $input): bool
+    {
+        return preg_match('/^[\da-zA-ZÁ-ÿ\040\-\n.,\'?!]+$/', $input) == 1;
+    }
+
+    private function escapeSpecialCharacters(string $input): string
+    {
+        return str_replace([",","'"], ["\,", "\'"], $input);
     }
 
     #[ArrayShape(['id' => "int", 'title' => "string", 'lyrics' => "null|string"])]
