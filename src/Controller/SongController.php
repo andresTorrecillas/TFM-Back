@@ -47,7 +47,7 @@ class SongController extends AbstractController
                 $this->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
             }
         }
-        return $this->generateResponse()??$this->json($song);
+        return $this->generateResponse($song);
     }
 
     private function isUnique(string $title, ManagerRegistry $orm): bool|null
