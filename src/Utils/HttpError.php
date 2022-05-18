@@ -10,13 +10,6 @@ class HttpError implements JsonSerializable
     private string $message;
     private int $status;
 
-    /**
-     * @return string
-     */
-    public function getMessage(): string
-    {
-        return $this->message;
-    }
 
     /**
      * @param string $message
@@ -26,14 +19,6 @@ class HttpError implements JsonSerializable
     {
         $this->message = $message;
         return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getStatus(): int
-    {
-        return $this->status;
     }
 
     /**

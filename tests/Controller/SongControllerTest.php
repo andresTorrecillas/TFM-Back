@@ -10,7 +10,6 @@ use Faker\Generator as FakerGenerator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -46,8 +45,61 @@ class SongControllerTest extends TestCase
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertJson($response->getContent());
         $receivedSong = json_decode($response->getContent(), true);
-        echo $response->getContent();
         $this->assertSame($song->getTitle(), $receivedSong['title']);
         $this->assertSame($song->getLyrics(), $receivedSong['lyrics']);
+    }
+
+    public function testCreateSongWithoutLyrics()
+    {
+        $song = new Song();
+        $song->setTitle(self::$faker->sentence(3));
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('add');
+        $response = $songController->createSong(new Request(content:json_encode($song)), $this->mockedOrm);
+
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertJson($response->getContent());
+        $receivedSong = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("title", $receivedSong);
+        $this->assertSame($song->getTitle(), $receivedSong['title']);
+    }
+
+    public function testCreateSongInvalidCharacterInLyrics(){
+        $song = new Song();
+        $lyrics = self::$faker->text()."_";
+        $song->setTitle(self::$faker->sentence(3))->setLyrics($lyrics);
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('add');
+        $jsonSong = json_encode($song);
+        $jsonSong = str_replace('"lyrics":""', "\"lyrics\":\"$lyrics\"", $jsonSong);
+        $response = $songController->createSong(new Request(content:$jsonSong), $this->mockedOrm);
+
+        $this->assertJson($response->getContent());
+        $receivedData = json_decode($response->getContent(), true);
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertCount(1, $receivedData);
+        $this->assertArrayHasKey("message", $receivedData[0], "JSON hasn't got the right format");
+        $this->assertArrayHasKey("status_code", $receivedData[0], "JSON hasn't got the right format");
+        $this->assertEquals($response->getStatusCode(), $receivedData[0]["status_code"], 'HTTP status code doesn\'t match with JSON status code' );
+    }
+
+    public function testCreateSongWithoutTitle(){
+        $song = new Song();
+        $lyrics = self::$faker->text() . "_";
+        $song->setLyrics($lyrics);
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('add');
+        $response = $songController->createSong(new Request(content:json_encode($song)), $this->mockedOrm);
+
+        $this->assertJson($response->getContent());
+        $receivedData = json_decode($response->getContent(), true);
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertCount(1, $receivedData);
+        $this->assertArrayHasKey("message", $receivedData[0], "JSON hasn't got the right format");
+        $this->assertArrayHasKey("status_code", $receivedData[0], "JSON hasn't got the right format");
+        $this->assertEquals($response->getStatusCode(), $receivedData[0]["status_code"], 'HTTP status code doesn\'t match with JSON status code' );
     }
 }
