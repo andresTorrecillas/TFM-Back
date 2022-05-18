@@ -12,11 +12,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route(SongController::ROOT_PATH)
+ */
 class SongController extends AbstractController
 {
     use HTTPResponseHandler;
+    public const ROOT_PATH = "/song";
     /**
-     * @Route("/song", name="app_song", methods={"GET"})
+     * @Route("", name="app_song", methods={"GET"})
      */
     public function index(): Response
     {
@@ -27,7 +31,7 @@ class SongController extends AbstractController
     }
 
     /**
-     * @Route("/new/song", name="new_song", methods={"POST"})
+     * @Route("", name="new_song", methods={"POST"})
      */
     public function createSong(Request $request, ManagerRegistry $orm): Response
     {
