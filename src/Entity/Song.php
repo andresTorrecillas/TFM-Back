@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\SongRepository;
 use Doctrine\ORM\Mapping as ORM;
-use http\Exception\InvalidArgumentException;
 use JetBrains\PhpStorm\ArrayShape;
 use JsonSerializable;
 
@@ -70,8 +69,8 @@ class Song implements JsonSerializable
     {
         return array(
             'id'=>$this->id??0,
-            'title'=>$this->title,
-            'lyrics'=>$this->lyrics
+            'title'=>$this->title??"",
+            'lyrics'=>$this->lyrics??""
         );
     }
 }

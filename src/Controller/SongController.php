@@ -7,7 +7,6 @@ use App\Utils\HTTPResponseHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -60,10 +59,10 @@ class SongController extends AbstractController
     {
         $body = $request->getContent();
         $receivedSong = json_decode($body, true);
-        if (isset($receivedSong) && isset($receivedSong["title"])) {
+        if (isset($receivedSong) && !empty($receivedSong["title"])) {
             $song = new Song();
             $song->setTitle($receivedSong["title"]);
-            if (isset($receivedSong["lyrics"])) {
+            if (!empty($receivedSong["lyrics"])) {
                 if(!$song->setLyrics($receivedSong["lyrics"])){
                     $this->addError(Response::HTTP_BAD_REQUEST, "La letra contiene caracteres no admitidos");
                     return null;
