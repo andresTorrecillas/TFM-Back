@@ -18,16 +18,6 @@ class SongController extends AbstractController
 {
     use HTTPResponseHandler;
     public const ROOT_PATH = "/song";
-    /**
-     * @Route("", name="app_song", methods={"GET"})
-     */
-    public function index(): Response
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/SongController.php',
-        ]);
-    }
 
     /**
      * @Route("", name="new_song", methods={"POST"})

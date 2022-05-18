@@ -21,6 +21,13 @@ class Song implements JsonSerializable
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $lyrics;
 
+    public function __construct()
+    {
+        $this->title = "";
+        $this->lyrics = "";
+    }
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,8 +76,8 @@ class Song implements JsonSerializable
     {
         return array(
             'id'=>$this->id??0,
-            'title'=>$this->title??"",
-            'lyrics'=>$this->lyrics??""
+            'title'=>$this->title,
+            'lyrics'=>$this->lyrics
         );
     }
 }
