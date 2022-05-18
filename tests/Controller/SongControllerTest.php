@@ -6,6 +6,7 @@ use App\Entity\Song;
 use App\Controller\SongController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
