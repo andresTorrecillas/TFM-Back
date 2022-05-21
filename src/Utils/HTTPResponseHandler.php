@@ -29,7 +29,11 @@ trait HTTPResponseHandler
         if(!$this->correct){
             $message = json_encode($this->errors);
         }
-        return new Response($message, $this->primaryStatus, ["Content-Type" => "application/json"]);
+        $headers = [
+            "Content-Type" => "application/json",
+            "Access-Control-Allow-Origin" => "http://localhost:4200"
+        ];
+        return new Response($message, $this->primaryStatus, $headers);
     }
 
 
