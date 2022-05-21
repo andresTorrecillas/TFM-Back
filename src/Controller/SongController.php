@@ -17,7 +17,18 @@ use Symfony\Component\Routing\Annotation\Route;
 class SongController extends AbstractController
 {
     use HTTPResponseHandler;
-    public const ROOT_PATH = "/song";
+    public const ROOT_PATH = "/api/song";
+
+    /**
+     * @Route("", name="app_song", methods={"GET"})
+     */
+    public function index(): Response
+    {
+        return $this->generateResponse(json_encode([
+            'message' => 'Welcome to your new controller!',
+            'path' => 'src/Controller/SongController.php',
+        ]));
+    }
 
     /**
      * @Route("", name="new_song", methods={"POST"})
