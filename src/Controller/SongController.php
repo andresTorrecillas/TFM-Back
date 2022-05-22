@@ -20,14 +20,16 @@ class SongController extends AbstractController
     public const ROOT_PATH = "/api/song";
 
     /**
-     * @Route("", name="app_song", methods={"GET"})
+     * @Route("/{id}", name="app_song", methods={"GET"})
      */
-    public function index(): Response
+    public function index(int $id, ManagerRegistry $orm): Response
     {
-        return $this->generateResponse(json_encode([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/SongController.php',
-        ]));
+        $song = $orm->getRepository(Song::class)
+            ->find($id);
+        if(is_null($song)){
+            $this->addError(Response::HTTP_NOT_FOUND, "No se ha encontrado ninguna canción con el id indicado");
+        }
+        return $this->generateResponse($song);
     }
 
     /**
