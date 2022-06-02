@@ -4,6 +4,11 @@ namespace App\Utils;
 
 use Symfony\Component\HttpFoundation\Response;
 
+define("METHOD_GET", "GET");
+define("METHOD_POST", "POST");
+define("METHOD_DELETE", "DELETE");
+define("METHOD_OPTIONS", "OPTIONS");
+
 trait HTTPResponseHandler
 {
     private array $errors;
@@ -23,18 +28,30 @@ trait HTTPResponseHandler
         $this->errors[] = $httpError;
     }
 
-    public function generateResponse(mixed $body = ''): Response|null
+    public function generateResponse(mixed $body = '', string $method = METHOD_GET, int $correctStatus = Response::HTTP_OK): Response|null
     {
-        $message = empty($body)?$body:json_encode($body);
         if(!$this->correct){
             $message = json_encode($this->errors);
+        } else{
+            $message = empty($body)?$body:json_encode($body);
+            $this->primaryStatus = $correctStatus;
         }
-        $headers = [
-            "Content-Type" => "application/json",
-            "Access-Control-Allow-Origin" => "http://localhost:4200"
-        ];
+        if($method == METHOD_OPTIONS && $this->primaryStatus < Response::HTTP_MULTIPLE_CHOICES){
+            $this->primaryStatus = Response::HTTP_NO_CONTENT;
+        }
+        $headers = $this->generateHeaders($method);
         return new Response($message, $this->primaryStatus, $headers);
     }
 
+    private function generateHeaders(string $method): array{
+        $headers = [];
+        if($method == METHOD_OPTIONS){
+            $headers = [
+                "Access-Control-Allow-Methods" => "POST, GET, DELETE",
+                "Access-Control-Allow-Headers" => "content-type"
+            ];
+        }
+        return $headers;
+    }
 
 }

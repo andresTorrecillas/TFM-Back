@@ -22,7 +22,7 @@ class SongController extends AbstractController
     /**
      * @Route("/{id}", name="app_song", methods={"GET"})
      */
-    public function index(int $id, ManagerRegistry $orm): Response
+    public function get(int $id, ManagerRegistry $orm): Response
     {
         $song = $orm->getRepository(Song::class)
             ->find($id);
@@ -35,7 +35,7 @@ class SongController extends AbstractController
     /**
      * @Route("", name="new_song", methods={"POST"})
      */
-    public function createSong(Request $request, ManagerRegistry $orm): Response
+    public function create(Request $request, ManagerRegistry $orm): Response
     {
         $song = $this->getSongFromRequestBody($request);
         if (isset($song)) {
@@ -49,7 +49,37 @@ class SongController extends AbstractController
                 $this->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
             }
         }
-        return $this->generateResponse($song);
+        return $this->generateResponse($song, METHOD_POST, Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("", name="list_songs", methods={"GET"})
+     */
+    public function getList(ManagerRegistry $orm): Response
+    {
+        $songList = $orm->getRepository(Song::class)->findAll();
+        return $this->generateResponse($songList);
+    }
+
+    /**
+     * @Route("/{id}", name="delete_song", methods={"DELETE"})
+     */
+    public function delete(int $id, ManagerRegistry $orm): Response
+    {
+        $db = $orm->getRepository(Song::class);
+        $song = $db->find($id);
+        if(isset($song)){
+            $db->remove($song, true);
+        }
+        return $this->generateResponse(method: METHOD_DELETE, correctStatus: Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("", name="options_songs", methods={"OPTIONS"})
+     * @Route("/{id}", name="options_id_songs", methods={"OPTIONS"})
+     */
+    public function optionsRequest(): Response{
+        return $this->generateResponse(method: METHOD_OPTIONS);
     }
 
     private function isUnique(string $title, ManagerRegistry $orm): bool|null

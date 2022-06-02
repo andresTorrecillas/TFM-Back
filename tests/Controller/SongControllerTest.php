@@ -40,9 +40,9 @@ class SongControllerTest extends TestCase
         $songController = new SongController();
         $this->SongRepositoryMock->expects($this->any())
             ->method('add');
-        $response = $songController->createSong(new Request(content:json_encode($song)), $this->mockedOrm);
+        $response = $songController->create(new Request(content:json_encode($song)), $this->mockedOrm);
 
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertJson($response->getContent());
         $receivedSong = json_decode($response->getContent(), true);
         $this->assertSame($song->getTitle(), $receivedSong['title']);
@@ -56,9 +56,9 @@ class SongControllerTest extends TestCase
         $songController = new SongController();
         $this->SongRepositoryMock->expects($this->any())
             ->method('add');
-        $response = $songController->createSong(new Request(content:json_encode($song)), $this->mockedOrm);
+        $response = $songController->create(new Request(content:json_encode($song)), $this->mockedOrm);
 
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertJson($response->getContent());
         $receivedSong = json_decode($response->getContent(), true);
         $this->assertArrayHasKey("title", $receivedSong);
@@ -74,7 +74,7 @@ class SongControllerTest extends TestCase
             ->method('add');
         $jsonSong = json_encode($song);
         $jsonSong = str_replace('"lyrics":""', "\"lyrics\":\"$lyrics\"", $jsonSong);
-        $response = $songController->createSong(new Request(content:$jsonSong), $this->mockedOrm);
+        $response = $songController->create(new Request(content:$jsonSong), $this->mockedOrm);
 
         $this->assertJson($response->getContent());
         $receivedData = json_decode($response->getContent(), true);
@@ -92,7 +92,7 @@ class SongControllerTest extends TestCase
         $songController = new SongController();
         $this->SongRepositoryMock->expects($this->any())
             ->method('add');
-        $response = $songController->createSong(new Request(content:json_encode($song)), $this->mockedOrm);
+        $response = $songController->create(new Request(content:json_encode($song)), $this->mockedOrm);
 
         $this->assertJson($response->getContent());
         $receivedData = json_decode($response->getContent(), true);
