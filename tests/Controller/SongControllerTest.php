@@ -33,6 +33,32 @@ class SongControllerTest extends TestCase
             ->willReturn($this->SongRepositoryMock);
     }
 
+    public function testGetSong(){
+        $song = new Song();
+        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text());
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('find')
+            ->willReturn($song);
+        $response = $songController->get(1, $this->mockedOrm);
+        $this->assertTrue($response->isOk(), "Failed status");
+        $this->assertJson($response->getContent());
+        $receivedData = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("title", $receivedData);
+        $this->assertArrayHasKey("lyrics", $receivedData);
+    }
+
+    public function testGetNotFound(){
+        $song = new Song();
+        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text());
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('find')
+            ->willReturn(null);
+        $response = $songController->get(0, $this->mockedOrm);
+        $this->assertTrue($response->isNotFound(), "Failed status \n" . $response);
+    }
+
     public function testCreateSong()
     {
         $song = new Song();
@@ -101,5 +127,29 @@ class SongControllerTest extends TestCase
         $this->assertArrayHasKey("message", $receivedData[0], "JSON hasn't got the right format");
         $this->assertArrayHasKey("status_code", $receivedData[0], "JSON hasn't got the right format");
         $this->assertEquals($response->getStatusCode(), $receivedData[0]["status_code"], 'HTTP status code doesn\'t match with JSON status code' );
+    }
+
+    public function testGetList(){
+        $song = new Song();
+        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text());
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('findAll')
+            ->willReturn([$song]);
+        $response = $songController->getList($this->mockedOrm);
+        $this->assertTrue($response->isOk(), "Failed status");
+        $receivedData = json_decode($response->getContent(), true);
+        foreach ($receivedData as $value) {
+            $this->assertArrayHasKey("title", $value);
+            $this->assertArrayHasKey("lyrics", $value);
+        }
+    }
+
+    public function testDeleteSong(){
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method("remove");
+        $response = $songController->delete(1, $this->mockedOrm);
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 }

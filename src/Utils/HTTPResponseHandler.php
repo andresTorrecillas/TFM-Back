@@ -20,7 +20,9 @@ trait HTTPResponseHandler
         $httpError = new HttpError();
         $httpError->setMessage($message)->setStatus($status);
         if($status >= Response::HTTP_BAD_REQUEST && $status < Response::HTTP_INTERNAL_SERVER_ERROR){
-            $this->primaryStatus = Response::HTTP_BAD_REQUEST;
+            $this->primaryStatus = $status == Response::HTTP_NOT_FOUND ?
+                Response::HTTP_NOT_FOUND :
+                Response::HTTP_BAD_REQUEST;
         } else if($this->correct){
             $this->primaryStatus = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
