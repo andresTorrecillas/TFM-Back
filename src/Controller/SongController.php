@@ -22,7 +22,7 @@ class SongController extends AbstractController
     /**
      * @Route("/{id}", name="app_song", methods={"GET"})
      */
-    public function get(int $id, ManagerRegistry $orm): Response
+    public function get(string $id, ManagerRegistry $orm): Response
     {
         $song = $orm->getRepository(Song::class)
             ->find($id);
@@ -49,7 +49,7 @@ class SongController extends AbstractController
                 $this->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
             }
         }
-        return $this->generateResponse($song, METHOD_POST, Response::HTTP_CREATED);
+        return $this->generateResponse($song, Request::METHOD_POST, Response::HTTP_CREATED);
     }
 
     /**
@@ -71,7 +71,7 @@ class SongController extends AbstractController
         if(isset($song)){
             $db->remove($song, true);
         }
-        return $this->generateResponse(method: METHOD_DELETE, correctStatus: Response::HTTP_NO_CONTENT);
+        return $this->generateResponse(method: Request::METHOD_DELETE, correctStatus: Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -79,7 +79,7 @@ class SongController extends AbstractController
      * @Route("/{id}", name="options_id_songs", methods={"OPTIONS"})
      */
     public function optionsRequest(): Response{
-        return $this->generateResponse(method: METHOD_OPTIONS);
+        return $this->generateResponse(method: Request::METHOD_OPTIONS);
     }
 
     private function isUnique(string $title, ManagerRegistry $orm): bool|null

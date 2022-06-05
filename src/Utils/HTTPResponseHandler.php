@@ -2,12 +2,8 @@
 
 namespace App\Utils;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
-define("METHOD_GET", "GET");
-define("METHOD_POST", "POST");
-define("METHOD_DELETE", "DELETE");
-define("METHOD_OPTIONS", "OPTIONS");
 
 trait HTTPResponseHandler
 {
@@ -30,7 +26,7 @@ trait HTTPResponseHandler
         $this->errors[] = $httpError;
     }
 
-    public function generateResponse(mixed $body = '', string $method = METHOD_GET, int $correctStatus = Response::HTTP_OK): Response|null
+    public function generateResponse(mixed $body = '', string $method = Request::METHOD_GET, int $correctStatus = Response::HTTP_OK): Response|null
     {
         if(!$this->correct){
             $message = json_encode($this->errors);
@@ -38,7 +34,7 @@ trait HTTPResponseHandler
             $message = empty($body)?$body:json_encode($body);
             $this->primaryStatus = $correctStatus;
         }
-        if($method == METHOD_OPTIONS && $this->primaryStatus < Response::HTTP_MULTIPLE_CHOICES){
+        if($method == Request::METHOD_OPTIONS && $this->primaryStatus < Response::HTTP_MULTIPLE_CHOICES){
             $this->primaryStatus = Response::HTTP_NO_CONTENT;
         }
         $headers = $this->generateHeaders($method);
@@ -47,7 +43,7 @@ trait HTTPResponseHandler
 
     private function generateHeaders(string $method): array{
         $headers = [];
-        if($method == METHOD_OPTIONS){
+        if($method == Request::METHOD_OPTIONS){
             $headers = [
                 "Access-Control-Allow-Methods" => "POST, GET, DELETE",
                 "Access-Control-Allow-Headers" => "content-type"
