@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 trait HTTPResponseHandler
@@ -15,7 +16,9 @@ trait HTTPResponseHandler
         $httpError = new HttpError();
         $httpError->setMessage($message)->setStatus($status);
         if($status >= Response::HTTP_BAD_REQUEST && $status < Response::HTTP_INTERNAL_SERVER_ERROR){
-            $this->primaryStatus = Response::HTTP_BAD_REQUEST;
+            $this->primaryStatus = $status == Response::HTTP_NOT_FOUND ?
+                Response::HTTP_NOT_FOUND :
+                Response::HTTP_BAD_REQUEST;
         } else if($this->correct){
             $this->primaryStatus = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
@@ -23,18 +26,30 @@ trait HTTPResponseHandler
         $this->errors[] = $httpError;
     }
 
-    public function generateResponse(mixed $body = ''): Response|null
+    public function generateResponse(mixed $body = '', string $method = Request::METHOD_GET, int $correctStatus = Response::HTTP_OK): Response|null
     {
-        $message = empty($body)?$body:json_encode($body);
         if(!$this->correct){
             $message = json_encode($this->errors);
+        } else{
+            $message = empty($body)?$body:json_encode($body);
+            $this->primaryStatus = $correctStatus;
         }
-        $headers = [
-            "Content-Type" => "application/json",
-            "Access-Control-Allow-Origin" => "http://localhost:4200"
-        ];
+        if($method == Request::METHOD_OPTIONS && $this->primaryStatus < Response::HTTP_MULTIPLE_CHOICES){
+            $this->primaryStatus = Response::HTTP_NO_CONTENT;
+        }
+        $headers = $this->generateHeaders($method);
         return new Response($message, $this->primaryStatus, $headers);
     }
 
+    private function generateHeaders(string $method): array{
+        $headers = [];
+        if($method == Request::METHOD_OPTIONS){
+            $headers = [
+                "Access-Control-Allow-Methods" => "POST, GET, DELETE",
+                "Access-Control-Allow-Headers" => "content-type"
+            ];
+        }
+        return $headers;
+    }
 
 }

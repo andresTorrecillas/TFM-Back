@@ -11,9 +11,9 @@ use JsonSerializable;
 class Song implements JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private int $id;
+    #[ORM\Column(type: 'string', length: 30, unique: true)]
+    #[ORM\GeneratedValue(strategy: "NONE")]
+    private string $id;
 
     #[ORM\Column(type: 'string', length: 60, unique: true)]
     private string $title;
@@ -21,12 +21,12 @@ class Song implements JsonSerializable
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $lyrics;
 
-    public function __construct()
+    public function __construct(string $id = null)
     {
+        $this->id = $id?? $this->base64url_encode(uniqid());
         $this->title = "";
         $this->lyrics = "";
     }
-
 
     public function getId(): ?int
     {
@@ -71,7 +71,13 @@ class Song implements JsonSerializable
         return str_replace([",","'"], ["\,", "\'"], $input);
     }
 
-    #[ArrayShape(['id' => "int", 'title' => "string", 'lyrics' => "null|string"])]
+    private function base64url_encode($data): string
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+
+#[ArrayShape(['id' => "int", 'title' => "string", 'lyrics' => "null|string"])]
     public function jsonSerialize(): array
     {
         return array(
