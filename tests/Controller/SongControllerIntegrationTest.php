@@ -20,6 +20,7 @@ class SongControllerIntegrationTest extends WebTestCase
     private static FakerGenerator $faker;
     protected static KernelBrowser $client;
     private const ID_PREFIX = "NjI5YmE4ZjcwYjJhMw-";
+    private const ID_DELETE = "NjZ-Delete-";
 
     public function setUp(): void
     {
@@ -43,8 +44,7 @@ class SongControllerIntegrationTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertJson($response->getContent());
         $receivedSong = json_decode($response->getContent(), true);
-        //self::assertEquals($id, $receivedSong["id"]);
-        //$this->assertEquals($id, $receivedSong["id"]);
+        self::assertEquals($id, $receivedSong["id"]);
         self::assertArrayHasKey("title", $receivedSong);
         self::assertArrayHasKey("lyrics", $receivedSong);
     }
@@ -57,7 +57,10 @@ class SongControllerIntegrationTest extends WebTestCase
         $receivedSongList = json_decode($response->getContent(), true);
         $index = 1;
         foreach ($receivedSongList as $song){
-            self::assertStringEndsWith($index, $song["id"]);
+            self::assertArrayHasKey("id", $song);
+            if(!str_contains($song["id"], "Delete")) {
+                self::assertStringEndsWith($index, $song["id"]);
+            }
             self::assertArrayHasKey("title", $song);
             self::assertArrayHasKey("lyrics", $song);
             $index ++;
@@ -109,4 +112,15 @@ class SongControllerIntegrationTest extends WebTestCase
         self::assertArrayHasKey("message", $receivedData[0], "JSON hasn't got the right format");
         self::assertArrayHasKey("status_code", $receivedData[0], "JSON hasn't got the right format");
     }
+
+    public function testDeleteIT(){
+        $id = self::ID_DELETE;
+        self::$client->request(Request::METHOD_DELETE, SongController::ROOT_PATH . "/" . $id);
+        self::assertResponseIsSuccessful();
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        self::$client->request(Request::METHOD_GET, SongController::ROOT_PATH . "/" . $id);
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+
 }
