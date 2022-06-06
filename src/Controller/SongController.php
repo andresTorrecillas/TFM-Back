@@ -64,7 +64,7 @@ class SongController extends AbstractController
     /**
      * @Route("/{id}", name="delete_song", methods={"DELETE"})
      */
-    public function delete(int $id, ManagerRegistry $orm): Response
+    public function delete(string $id, ManagerRegistry $orm): Response
     {
         $db = $orm->getRepository(Song::class);
         $song = $db->find($id);
