@@ -57,11 +57,10 @@ jobs:
         env:
           DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
 
-      - name: Run Migration
+      - name: Generate database
         run: |
           composer require --dev symfony/orm-pack
           php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
-          php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
         env:
           DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
 
@@ -69,6 +68,6 @@ jobs:
         run: simple-phpunit install
 
       - name: Run tests
-        run: simple-phpunit --coverage-text
+        run: simple-phpunit
         env:
           DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
