@@ -149,7 +149,7 @@ class SongControllerTest extends TestCase
         $songController = new SongController();
         $this->SongRepositoryMock->expects($this->any())
             ->method("remove");
-        $response = $songController->delete(1, $this->mockedOrm);
+        $response = $songController->delete("Delete-1", $this->mockedOrm);
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 }
