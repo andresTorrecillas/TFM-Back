@@ -20,7 +20,7 @@ class SongControllerIntegrationTest extends WebTestCase
     private static FakerGenerator $faker;
     protected static KernelBrowser $client;
     private const ID_PREFIX = "NjI5YmE4ZjcwYjJhMw-";
-    private const ID_DELETE = "NjZ-Delete-";
+    private const ID_DELETE = "NjZ-Delete";
 
     public function setUp(): void
     {
@@ -119,6 +119,32 @@ class SongControllerIntegrationTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::$client->request(Request::METHOD_GET, SongController::ROOT_PATH . "/" . $id);
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testPatchIT(){
+        $id = self::ID_PREFIX . "4";
+        $updatedLyrics = self::$faker->text();
+        self::$client->request(
+            Request::METHOD_PATCH,
+            SongController::ROOT_PATH . "/" . $id,
+            content: json_encode(["lyrics" => $updatedLyrics])
+        );
+        self::assertResponseIsSuccessful();
+        self::$client->request(Request::METHOD_GET, SongController::ROOT_PATH . "/" . $id);
+        $response = self::$client->getResponse();
+        $receivedData = json_decode($response->getContent(),true);
+        self::assertEquals($updatedLyrics, $receivedData["lyrics"]);
+    }
+
+    public function testPatchNotFoundIT(){
+        $id = self::ID_PREFIX . "12";
+        $updatedLyrics = self::$faker->text();
+        self::$client->request(
+            Request::METHOD_PATCH,
+            SongController::ROOT_PATH . "/" . $id,
+            content: json_encode(["lyrics" => $updatedLyrics])
+        );
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 

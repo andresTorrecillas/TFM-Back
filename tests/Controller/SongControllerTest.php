@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use function PHPUnit\Framework\assertEmpty;
 
 class SongControllerTest extends TestCase
 {
@@ -151,5 +152,25 @@ class SongControllerTest extends TestCase
             ->method("remove");
         $response = $songController->delete("Delete-1", $this->mockedOrm);
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        $this->assertEmpty($response->getContent());
+    }
+
+    public function testPatch(){
+        $song = new Song();
+        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text());
+        $songController = new SongController();
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('find')
+            ->willReturn($song);
+        $this->SongRepositoryMock->expects($this->any())
+            ->method('add');
+        $requestBody = json_encode(["lyrics" => self::$faker->text()]);
+        $response = $songController->patch(
+            "Update-1",
+            new Request(content: $requestBody),
+            $this->mockedOrm
+        );
+        $this->assertTrue($response->isOk());
+        $this->assertEmpty($response->getContent());
     }
 }
