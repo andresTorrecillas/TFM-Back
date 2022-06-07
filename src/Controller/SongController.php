@@ -75,7 +75,7 @@ class SongController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="delete_song", methods={"PATCH"})
+     * @Route("/{id}", name="update_song", methods={"PATCH"})
      */
     public function patch(string $id, Request $request, ManagerRegistry $orm): Response
     {
