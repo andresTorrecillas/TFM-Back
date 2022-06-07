@@ -75,6 +75,27 @@ class SongController extends AbstractController
     }
 
     /**
+     * @Route("/{id}", name="delete_song", methods={"PATCH"})
+     */
+    public function patch(string $id, Request $request, ManagerRegistry $orm): Response
+    {
+        $db = $orm->getRepository(Song::class);
+        $song = $db->find($id);
+        if(!isset($song)){
+            $this->addError(Response::HTTP_NOT_FOUND, "No existe una canción con el id indicado");
+        } else{
+            $body = $request->getContent();
+            $receivedSong = json_decode($body, true);
+            $song
+                ->setTitle($receivedSong["title"]??$song->getTitle())
+                ->setLyrics($receivedSong["lyrics"]??$song->getLyrics());
+            $db->add($song, true);
+        }
+
+        return $this->generateResponse(method: Request::METHOD_PATCH);
+    }
+
+    /**
      * @Route("", name="options_songs", methods={"OPTIONS"})
      * @Route("/{id}", name="options_id_songs", methods={"OPTIONS"})
      */

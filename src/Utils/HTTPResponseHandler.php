@@ -45,7 +45,7 @@ trait HTTPResponseHandler
         $headers = [];
         if($method == Request::METHOD_OPTIONS){
             $headers = [
-                "Access-Control-Allow-Methods" => "POST, GET, DELETE",
+                "Access-Control-Allow-Methods" => "POST, GET, DELETE, PATCH",
                 "Access-Control-Allow-Headers" => "content-type"
             ];
         }
