@@ -10,6 +10,12 @@ trait HTTPResponseHandler
     private array $errors;
     private int $primaryStatus = Response::HTTP_OK;
     private bool $correct = true;
+    private Response $redirectResponse;
+    private array $headers = [];
+
+    public function addHeaders(array $headers):void {
+        $this->headers = array_merge($this->headers, $headers);
+    }
 
     public function addError(int $status, string $message = ''): void
     {
@@ -41,8 +47,8 @@ trait HTTPResponseHandler
         return new Response($message, $this->primaryStatus, $headers);
     }
 
-    private function generateHeaders(string $method): array{
-        $headers = [];
+    private function generateHeaders(string $method = Request::METHOD_GET): array{
+        $headers = $this->headers;
         if($method == Request::METHOD_OPTIONS){
             $headers = [
                 "Access-Control-Allow-Methods" => "POST, GET, DELETE, PATCH",
@@ -50,6 +56,17 @@ trait HTTPResponseHandler
             ];
         }
         return $headers;
+    }
+
+    private function isAuthenticated(string $loginPath): bool{
+        $auth = $this->requestStack->getSession()->get("auth")??false == true;
+        echo $auth;
+        if(!$auth){
+            $headers = $this->generateHeaders();
+            $headers["location"] = $loginPath;
+            $this->redirectResponse = new Response('', Response::HTTP_TEMPORARY_REDIRECT, $headers);
+        }
+        return $auth;
     }
 
 }

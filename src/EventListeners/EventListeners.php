@@ -2,12 +2,15 @@
 
 namespace App\EventListeners;
 
+use App\Utils\HTTPResponseHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
-class RequestListener implements EventSubscriberInterface
+class EventListeners implements EventSubscriberInterface
 {
+    use HTTPResponseHandler;
+
     public function onKernelResponse(ResponseEvent $event): void
     {
         if ($event->isMainRequest() && isset($_ENV["CORS_ORIGIN"])) {
@@ -21,6 +24,8 @@ class RequestListener implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return [ResponseEvent::class => 'onKernelResponse'];
+        return [
+            ResponseEvent::class => 'onKernelResponse'
+        ];
     }
 }

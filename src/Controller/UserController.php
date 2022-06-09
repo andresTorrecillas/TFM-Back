@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Utils\HTTPResponseHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -64,10 +65,11 @@ class UserController extends AbstractController
     public function login(
         Request $request,
         ManagerRegistry $orm,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        JWTTokenManagerInterface $JWTManager
     ):Response
     {
-        $user = null;
+        $data = null;
         $logInUser = $this->getLogInUserFromRequest($request);
         if (is_null($logInUser)){
             $this->addError(
@@ -85,11 +87,20 @@ class UserController extends AbstractController
                 $session->set("auth", true);
                 $session->set("user", $user->getUserName());
                 $session->set("roles", $user->getRoles());
+                $data = ["token" => $JWTManager->create($user), "user" => $user];
             } else{
                 $this->addError(Response::HTTP_UNAUTHORIZED, "Credenciales incorrectas");
             }
         }
-        return $this->generateResponse($user,Request::METHOD_POST);
+        return $this->generateResponse($data,Request::METHOD_POST);
+    }
+
+    /**
+     * @Route("", name="options_user", methods={"OPTIONS"})
+     * @Route("/login", name="options_login", methods={"OPTIONS"})
+     */
+    public function optionsRequest(): Response{
+        return $this->generateResponse(method: Request::METHOD_OPTIONS);
     }
 
     private function  getLogInUserFromRequest(Request $request): array|null
@@ -179,7 +190,5 @@ class UserController extends AbstractController
 
     }
 
-    private function isAuthenticated(): bool{
-        return $this->requestStack->getSession()->get("auth")??false == true;
-    }
+
 }
