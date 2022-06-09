@@ -48,8 +48,6 @@ class SongController extends AbstractController
             } catch (Exception $exception){
                 $this->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
             }
-        } else{
-            $this->addError(Response::HTTP_BAD_REQUEST, "No se ha incluido ninguna canción válida en la petición");
         }
         return $this->generateResponse($song, Request::METHOD_POST, Response::HTTP_CREATED);
     }

@@ -123,6 +123,7 @@ class SongControllerTest extends TestCase
 
         $this->assertJson($response->getContent());
         $receivedData = json_decode($response->getContent(), true);
+        echo $response->getContent();
         $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertCount(1, $receivedData);
         $this->assertArrayHasKey("message", $receivedData[0], "JSON hasn't got the right format");
