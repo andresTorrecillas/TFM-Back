@@ -51,7 +51,7 @@ class HTTPResponseHandler
         if($method == Request::METHOD_OPTIONS){
             $headers = [
                 "Access-Control-Allow-Methods" => "POST, GET, DELETE, PATCH",
-                "Access-Control-Allow-Headers" => "content-type"
+                "Access-Control-Allow-Headers" => "content-type, authorization"
             ];
         }
         return $headers;
