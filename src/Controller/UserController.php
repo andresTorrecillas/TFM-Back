@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\OrmService;
 use App\Utils\HTTPResponseHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
@@ -19,13 +20,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UserController extends AbstractController
 {
-    use HTTPResponseHandler;
     public const ROOT_PATH = "/api/user";
     private RequestStack $requestStack;
+    private HTTPResponseHandler $httpHandler;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(RequestStack $requestStack, HTTPResponseHandler $httpHandler)
     {
         $this->requestStack = $requestStack;
+        $this->httpHandler = $httpHandler;
     }
 
     /**
@@ -52,7 +54,7 @@ class UserController extends AbstractController
         if(!is_null($user)){
             $this->persist($user, $orm);
         }
-        return $this->generateResponse(
+        return $this->httpHandler->generateResponse(
             $user,
             Request::METHOD_POST,
             Response::HTTP_CREATED
@@ -64,7 +66,7 @@ class UserController extends AbstractController
      */
     public function login(
         Request $request,
-        ManagerRegistry $orm,
+        OrmService $orm,
         UserPasswordHasherInterface $passwordHasher,
         JWTTokenManagerInterface $JWTManager
     ):Response
@@ -72,27 +74,35 @@ class UserController extends AbstractController
         $data = null;
         $logInUser = $this->getLogInUserFromRequest($request);
         if (is_null($logInUser)){
-            $this->addError(
+            $this->httpHandler->addError(
                 Response::HTTP_BAD_REQUEST,
                 "The content doesn't have the correct format"
             );
         } else{
             $userName = $logInUser["userName"];
             $password = $logInUser["password"];
-            $db = $orm->getRepository(User::class);
-            $user = $db->findOneBy(["userName" => $userName]);
-            if($passwordHasher->isPasswordValid($user, $password)){
-                $session = $this->requestStack->getSession();
-                $session->invalidate();
-                $session->set("auth", true);
-                $session->set("user", $user->getUserName());
-                $session->set("roles", $user->getRoles());
-                $data = ["token" => $JWTManager->create($user), "user" => $user];
-            } else{
-                $this->addError(Response::HTTP_UNAUTHORIZED, "Credenciales incorrectas");
+            $user = $orm->findOneBy(["userName" => $userName], User::class);
+            if(isset($user)){
+                if($passwordHasher->isPasswordValid($user, $password)){
+                    $session = $this->requestStack->getSession();
+                    $session->invalidate();
+                    $session->set("auth", true);
+                    $session->set("user", $user->getUserName());
+                    $session->set("roles", $user->getRoles());
+                    $token = $JWTManager->create($user);
+                    $expirationDate = ($_ENV["JWT_TTL"] + microtime(true))* 1000;
+                    $expirationDate = round($expirationDate);
+                    $data = [
+                        "token" => $token,
+                        "expirationDate" => $expirationDate,
+                        "user" => $user
+                    ];
+                } else{
+                    $this->httpHandler->addError(Response::HTTP_UNAUTHORIZED, "Credenciales incorrectas");
+                }
             }
         }
-        return $this->generateResponse($data,Request::METHOD_POST);
+        return $this->httpHandler->generateResponse($data,Request::METHOD_POST);
     }
 
     /**
@@ -100,7 +110,7 @@ class UserController extends AbstractController
      * @Route("/login", name="options_login", methods={"OPTIONS"})
      */
     public function optionsRequest(): Response{
-        return $this->generateResponse(method: Request::METHOD_OPTIONS);
+        return $this->httpHandler->generateResponse(method: Request::METHOD_OPTIONS);
     }
 
     private function  getLogInUserFromRequest(Request $request): array|null
@@ -136,7 +146,7 @@ class UserController extends AbstractController
             $user->setPassword($hashedPassword);
             return $user;
         }
-        $this->addError(
+        $this->httpHandler->addError(
             Response::HTTP_BAD_REQUEST,
             "No se ha enviado un usuario con un formato adecuado"
         );
@@ -182,7 +192,7 @@ class UserController extends AbstractController
             $db->add($user, true);
         } catch (Exception $e){
             echo $e;
-            $this->addError(
+            $this->httpHandler->addError(
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 "No se ha podido guardar el usuario por un error en el servidor"
             );

@@ -5,12 +5,11 @@ namespace App\Utils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-trait HTTPResponseHandler
+class HTTPResponseHandler
 {
     private array $errors;
     private int $primaryStatus = Response::HTTP_OK;
     private bool $correct = true;
-    private Response $redirectResponse;
     private array $headers = [];
 
     public function addHeaders(array $headers):void {
@@ -56,17 +55,6 @@ trait HTTPResponseHandler
             ];
         }
         return $headers;
-    }
-
-    private function isAuthenticated(string $loginPath): bool{
-        $auth = $this->requestStack->getSession()->get("auth")??false == true;
-        echo $auth;
-        if(!$auth){
-            $headers = $this->generateHeaders();
-            $headers["location"] = $loginPath;
-            $this->redirectResponse = new Response('', Response::HTTP_TEMPORARY_REDIRECT, $headers);
-        }
-        return $auth;
     }
 
 }

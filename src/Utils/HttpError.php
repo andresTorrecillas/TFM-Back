@@ -32,12 +32,12 @@ class HttpError implements JsonSerializable
     }
 
 
-    #[ArrayShape(["message" => "string", "status_code" => "int"])]
+    #[ArrayShape(["message" => "string", "statusCode" => "int"])]
     public function jsonSerialize():array
     {
         return [
             "message" => $this->message,
-            "status_code" => $this->status
+            "statusCode" => $this->status
         ];
     }
 }

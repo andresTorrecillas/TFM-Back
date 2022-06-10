@@ -9,8 +9,6 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class EventListeners implements EventSubscriberInterface
 {
-    use HTTPResponseHandler;
-
     public function onKernelResponse(ResponseEvent $event): void
     {
         if ($event->isMainRequest() && isset($_ENV["CORS_ORIGIN"])) {

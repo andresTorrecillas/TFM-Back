@@ -16,8 +16,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SongController extends AbstractController
 {
-    use HTTPResponseHandler;
+    private HTTPResponseHandler $httpHandler;
     public const ROOT_PATH = "/api/song";
+
+    public function __construct(HTTPResponseHandler $httpHandler)
+    {
+        $this->httpHandler = $httpHandler;
+    }
 
     /**
      * @Route("/{id}", name="app_song", methods={"GET"})
@@ -27,9 +32,9 @@ class SongController extends AbstractController
         $song = $orm->getRepository(Song::class)
             ->find($id);
         if(is_null($song)){
-            $this->addError(Response::HTTP_NOT_FOUND, "No se ha encontrado ninguna canción con el id indicado");
+            $this->httpHandler->addError(Response::HTTP_NOT_FOUND, "No se ha encontrado ninguna canción con el id indicado");
         }
-        return $this->generateResponse($song);
+        return $this->httpHandler->generateResponse($song);
     }
 
     /**
@@ -41,15 +46,15 @@ class SongController extends AbstractController
         if (isset($song)) {
             try {
                 if(!$this->isUnique($song->getTitle(),$orm)){
-                    $this->addError(Response::HTTP_BAD_REQUEST, "Ya existe una canción con el título indicado");
+                    $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "Ya existe una canción con el título indicado");
                 } else {
                     $this->persist($song, $orm);
                 }
             } catch (Exception $exception){
-                $this->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
+                $this->httpHandler->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
             }
         }
-        return $this->generateResponse($song, Request::METHOD_POST, Response::HTTP_CREATED);
+        return $this->httpHandler->generateResponse($song, Request::METHOD_POST, Response::HTTP_CREATED);
     }
 
     /**
@@ -58,7 +63,7 @@ class SongController extends AbstractController
     public function getList(ManagerRegistry $orm): Response
     {
         $songList = $orm->getRepository(Song::class)->findAll();
-        return $this->generateResponse($songList);
+        return $this->httpHandler->generateResponse($songList);
     }
 
     /**
@@ -71,7 +76,7 @@ class SongController extends AbstractController
         if(isset($song)){
             $db->remove($song, true);
         }
-        return $this->generateResponse(method: Request::METHOD_DELETE, correctStatus: Response::HTTP_NO_CONTENT);
+        return $this->httpHandler->generateResponse(method: Request::METHOD_DELETE, correctStatus: Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -82,7 +87,7 @@ class SongController extends AbstractController
         $db = $orm->getRepository(Song::class);
         $song = $db->find($id);
         if(!isset($song)){
-            $this->addError(Response::HTTP_NOT_FOUND, "No existe una canción con el id indicado");
+            $this->httpHandler->addError(Response::HTTP_NOT_FOUND, "No existe una canción con el id indicado");
         } else{
             $body = $request->getContent();
             $receivedSong = json_decode($body, true);
@@ -92,7 +97,7 @@ class SongController extends AbstractController
             $db->add($song, true);
         }
 
-        return $this->generateResponse(method: Request::METHOD_PATCH);
+        return $this->httpHandler->generateResponse(method: Request::METHOD_PATCH);
     }
 
     /**
@@ -100,7 +105,7 @@ class SongController extends AbstractController
      * @Route("/{id}", name="options_id_songs", methods={"OPTIONS"})
      */
     public function optionsRequest(): Response{
-        return $this->generateResponse(method: Request::METHOD_OPTIONS);
+        return $this->httpHandler->generateResponse(method: Request::METHOD_OPTIONS);
     }
 
     private function isUnique(string $title, ManagerRegistry $orm): bool|null
@@ -118,13 +123,13 @@ class SongController extends AbstractController
             $song->setTitle($receivedSong["title"]);
             if (!empty($receivedSong["lyrics"])) {
                 if(!$song->setLyrics($receivedSong["lyrics"])){
-                    $this->addError(Response::HTTP_BAD_REQUEST, "La letra contiene caracteres no admitidos");
+                    $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "La letra contiene caracteres no admitidos");
                     return null;
                 }
             }
             return $song;
         }
-        $this->addError(Response::HTTP_BAD_REQUEST, "No se ha enviado una canción con un formato adecuado");
+        $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "No se ha enviado una canción con un formato adecuado");
         return null;
     }
 
@@ -134,7 +139,7 @@ class SongController extends AbstractController
             $db = $orm->getRepository(Song::class);
             $db->add($song, true);
         } catch (Exception){
-            $this->addError(Response::HTTP_INTERNAL_SERVER_ERROR, "No se ha podido guardar la canción por un error en el servidor");
+            $this->httpHandler->addError(Response::HTTP_INTERNAL_SERVER_ERROR, "No se ha podido guardar la canción por un error en el servidor");
         }
 
     }
