@@ -2,64 +2,40 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
+use JetBrains\PhpStorm\ArrayShape;
+use JsonSerializable;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Uid\Uuid;
 
-/**
- * User
- *
- * @ORM\Table(name="user", uniqueConstraints={@ORM\UniqueConstraint(name="UNIQ_8D93D649D17F50A6", columns={"uuid"}), @ORM\UniqueConstraint(name="UNIQ_8D93D64924A232CF", columns={"user_name"})})
- * @ORM\Entity
- */
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSerializable
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="uuid", type="uuid", length=180, nullable=false)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="doctrine.uuid_generator")
-     */
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private string $uuid;
 
-    /**
-     * @ORM\Column(name="roles", type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json')]
     private array $roles = [];
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="password", type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $password;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=60, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 60)]
     private string $name;
 
-    /**
-     *
-     * @ORM\Column(name="user_name", type="string", length=60, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 60, unique: true)]
     private string $userName;
 
     public function __construct(string $userName)
     {
+        $this->uuid = Uuid::v3(Uuid::fromString(Uuid::NAMESPACE_URL), $userName)->toBase32();
         $this->userName = $userName;
     }
 
@@ -171,4 +147,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
 
+    #[ArrayShape(["id" => "int", "uuid" => "string", "name" => "string", "userName" => "string"])]
+    public function jsonSerialize(): array
+    {
+        return [
+            "id" => $this->id,
+            "uuid" => $this->uuid,
+            "name" => $this->name,
+            "userName" => $this->userName
+        ];
+    }
 }
