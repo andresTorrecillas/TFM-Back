@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Song;
 use App\Repository\SongRepository;
 use App\Service\HTTPResponseHandler;
+use App\Service\JWTService;
 use App\Service\OrmService;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
@@ -74,9 +75,9 @@ class SongController extends AbstractController
      */
     public function delete(string $id): Response
     {
-        $db = $this->orm->find($id, Song::class);
+        $song = $this->orm->find($id, Song::class);
         if(isset($song)){
-            $db->remove($song, true);
+            $this->orm->remove($song, Song::class);
         }
         return $this->httpHandler->generateResponse(correctStatus: Response::HTTP_NO_CONTENT);
     }

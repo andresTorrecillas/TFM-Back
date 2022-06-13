@@ -7,16 +7,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HTTPResponseHandler
 {
-    private array $errors;
     private int $primaryStatus = Response::HTTP_OK;
-    private bool $correct = true;
     private array $headers = [];
-    private JWTService $jwtService;
     private RequestStack $requestStack;
+    private HTTPErrorHandler $httpErrorHandler;
+    private JWTService $jwtService;
 
-    public function __construct(JWTService $jwtService, RequestStack $requestStack)
+    public function __construct(RequestStack $requestStack, JWTService $jwtService, HTTPErrorHandler $httpErrorH)
     {
         $this->requestStack = $requestStack;
+        $this->httpErrorHandler = $httpErrorH;
         $this->jwtService = $jwtService;
     }
 
@@ -26,7 +26,7 @@ class HTTPResponseHandler
 
     public function addError(int $status, string $message = ''): void
     {
-        $httpError = new HttpError();
+        /*$httpError = new HttpError();
         $httpError->setMessage($message)->setStatus($status);
         if($status >= Response::HTTP_BAD_REQUEST && $status < Response::HTTP_INTERNAL_SERVER_ERROR){
             $this->primaryStatus = $status == Response::HTTP_NOT_FOUND ?
@@ -36,13 +36,15 @@ class HTTPResponseHandler
             $this->primaryStatus = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
         $this->correct = false;
-        $this->errors[] = $httpError;
+        $this->errors[] = $httpError;*/
+        $this->httpErrorHandler->addError($message, $status);
     }
 
     public function generateResponse(mixed $body = '', int $correctStatus = Response::HTTP_OK): Response
     {
-        if(!$this->correct){
-            $responseBody = $this->errors;
+        if(!$this->httpErrorHandler->isCorrect()){
+            $responseBody = $this->httpErrorHandler->getErrors();
+            $this->primaryStatus = $this->httpErrorHandler->getErrorStatusCode();
         } else{
             $responseBody = $body;
             $this->primaryStatus = $correctStatus;
@@ -56,8 +58,8 @@ class HTTPResponseHandler
 
     public function generateOptionsResponse(): Response
     {
-        if(!$this->correct){
-            $responseBody = $this->errors;
+        if(!$this->httpErrorHandler->isCorrect()){
+            $responseBody = $this->httpErrorHandler->getErrors();
         } else{
             $responseBody = "";
             $this->primaryStatus = Response::HTTP_NO_CONTENT;
@@ -66,8 +68,8 @@ class HTTPResponseHandler
     }
 
     public function generateLoginResponse(mixed $body): Response {
-        if(!$this->correct){
-            $responseBody = $this->errors;
+        if(!$this->httpErrorHandler->isCorrect()){
+            $responseBody = $this->httpErrorHandler->getErrors();
         } else{
             $responseBody = $body;
         }
@@ -75,8 +77,8 @@ class HTTPResponseHandler
     }
 
     public function generateRegisterResponse(mixed $body): Response {
-        if(!$this->correct){
-            $responseBody = $this->errors;
+        if(!$this->httpErrorHandler->isCorrect()){
+            $responseBody = $this->httpErrorHandler->getErrors();
         } else{
             $responseBody = $body;
             $this->primaryStatus = Response::HTTP_CREATED;
