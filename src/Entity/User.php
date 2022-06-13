@@ -33,6 +33,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     #[ORM\Column(type: 'string', length: 60, unique: true)]
     private string $userName;
 
+    #[ORM\Column(type: 'string', length: 60)]
+    private string $bandName;
+
+
+
     public function __construct(string $userName)
     {
         $this->uuid = Uuid::v3(Uuid::fromString(Uuid::NAMESPACE_URL), $userName)->toBase32();
@@ -138,6 +143,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     }
 
     /**
+     * @return string
+     */
+    public function getBandName(): string
+    {
+        return $this->bandName;
+    }
+
+    /**
+     * @param string $band_name
+     */
+    public function setBandName(string $band_name): void
+    {
+        $this->bandName = $band_name;
+    }
+
+    /**
      * @see UserInterface
      */
     public function eraseCredentials(): void
@@ -147,14 +168,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     }
 
 
-    #[ArrayShape(["id" => "int", "uuid" => "string", "name" => "string", "userName" => "string"])]
+    #[ArrayShape(["id" => "int", "uuid" => "string", "name" => "string", "userName" => "string", "bandName" => "string"])]
     public function jsonSerialize(): array
     {
         return [
             "id" => $this->id,
             "uuid" => $this->uuid,
             "name" => $this->name,
-            "userName" => $this->userName
+            "userName" => $this->userName,
+            "bandName" => $this->bandName
         ];
     }
 }

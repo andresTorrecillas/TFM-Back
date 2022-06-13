@@ -16,31 +16,33 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SongControllerIntegrationTest extends WebTestCase
 {
-    private static AbstractDatabaseTool $databaseTool;
+    private  AbstractDatabaseTool $databaseTool;
     private static FakerGenerator $faker;
-    protected static KernelBrowser $client;
+    protected  KernelBrowser $client;
     private const ID_PREFIX = "NjI5YmE4ZjcwYjJhMw-";
     private const ID_DELETE = "NjZ-Delete";
 
     public function setUp(): void
     {
-        self::$client = static::createClient();
-        self::$databaseTool = self::$client->getContainer()->get(DatabaseToolCollection::class)->get();
-        self::$databaseTool->loadFixtures([
+        $this->client = $this->createClient();
+        $this->databaseTool = $this->client->getContainer()->get(DatabaseToolCollection::class)->get();
+        $this->databaseTool->loadFixtures([
             SongFixtures::class
         ]);
+        echo 'end setUp';
     }
 
     public static function setUpBeforeClass(): void
     {
         self::$faker = FakerFactory::create('es_ES');
-
     }
 
     public function testGetIT(){
+        echo 'get';
         $id = self::ID_PREFIX . "1";
-        self::$client->request(Request::METHOD_GET, SongController::ROOT_PATH . "/" . $id);
-        $response = self::$client->getResponse();
+        $this->client->request(Request::METHOD_GET, SongController::ROOT_PATH . "/" . $id);
+        echo "request sended";
+        $response = $this->client->getResponse();
         self::assertResponseIsSuccessful();
         self::assertJson($response->getContent());
         $receivedSong = json_decode($response->getContent(), true);

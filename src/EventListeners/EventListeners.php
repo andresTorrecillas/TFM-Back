@@ -2,7 +2,7 @@
 
 namespace App\EventListeners;
 
-use App\Utils\HTTPResponseHandler;
+use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -20,6 +20,7 @@ class EventListeners implements EventSubscriberInterface
         }
     }
 
+    #[ArrayShape([ResponseEvent::class => "string"])]
     public static function getSubscribedEvents(): array
     {
         return [
