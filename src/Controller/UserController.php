@@ -3,11 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\HTTPResponseHandler;
+use App\Service\JWTService;
 use App\Service\OrmService;
-use App\Utils\HTTPResponseHandler;
-use Doctrine\Persistence\ManagerRegistry;
-use Exception;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -23,11 +21,13 @@ class UserController extends AbstractController
     public const ROOT_PATH = "/api/user";
     private RequestStack $requestStack;
     private HTTPResponseHandler $httpHandler;
+    private OrmService $orm;
 
-    public function __construct(RequestStack $requestStack, HTTPResponseHandler $httpHandler)
+    public function __construct(OrmService $orm, RequestStack $requestStack, HTTPResponseHandler $httpHandler)
     {
         $this->requestStack = $requestStack;
         $this->httpHandler = $httpHandler;
+        $this->orm = $orm;
     }
 
     /**
@@ -46,19 +46,14 @@ class UserController extends AbstractController
      */
     public function register(
         Request $request,
-        ManagerRegistry $orm,
         UserPasswordHasherInterface $passwordHasher
     ): Response
     {
         $user = $this->getUserFromRequest($request, $passwordHasher);
         if(!is_null($user)){
-            $this->persist($user, $orm);
+            $this->orm->persist($user);
         }
-        return $this->httpHandler->generateResponse(
-            $user,
-            Request::METHOD_POST,
-            Response::HTTP_CREATED
-        );
+        return $this->httpHandler->generateRegisterResponse($user);
     }
 
     /**
@@ -68,7 +63,7 @@ class UserController extends AbstractController
         Request $request,
         OrmService $orm,
         UserPasswordHasherInterface $passwordHasher,
-        JWTTokenManagerInterface $JWTManager
+        JWTService $jwtService
     ):Response
     {
         $data = null;
@@ -89,7 +84,7 @@ class UserController extends AbstractController
                     $session->set("auth", true);
                     $session->set("user", $user->getUserName());
                     $session->set("roles", $user->getRoles());
-                    $token = $JWTManager->create($user);
+                    $token = $jwtService->generateToken($user);
                     $expirationDate = ($_ENV["JWT_TTL"] + microtime(true))* 1000;
                     $expirationDate = round($expirationDate);
                     $data = [
@@ -102,15 +97,16 @@ class UserController extends AbstractController
                 }
             }
         }
-        return $this->httpHandler->generateResponse($data,Request::METHOD_POST);
+        return $this->httpHandler->generateLoginResponse($data);
     }
 
     /**
      * @Route("", name="options_user", methods={"OPTIONS"})
      * @Route("/login", name="options_login", methods={"OPTIONS"})
+     * @Route("/register", name="options_register", methods={"OPTIONS"})
      */
     public function optionsRequest(): Response{
-        return $this->httpHandler->generateResponse(method: Request::METHOD_OPTIONS);
+        return $this->httpHandler->generateOptionsResponse();
     }
 
     private function  getLogInUserFromRequest(Request $request): array|null
@@ -144,6 +140,7 @@ class UserController extends AbstractController
                 $plainTextPassword
             );
             $user->setPassword($hashedPassword);
+            $user->setBandName($userArray["bandName"]??"");
             return $user;
         }
         $this->httpHandler->addError(
@@ -167,7 +164,8 @@ class UserController extends AbstractController
     {
         $safe = true;
         $dataRegExps = [
-            "default" => '/((SELECT|DELETE|UPDATE|DROP) |[,;\/<>=+\-%|{}\[\]"])/i'
+            "default" => '/((SELECT|DELETE|UPDATE|DROP) |[,;\/<>=+\-%|{}\[\]"])/i',
+            "password" => '/^[^A-Za-z0-9+\/]+={3,}$/'
         ];
         reset($data);
         while (current($data) && $safe){
@@ -183,21 +181,6 @@ class UserController extends AbstractController
             next($data);
         }
         return $safe;
-    }
-
-    private function persist(User $user, ManagerRegistry $orm): void
-    {
-        try {
-            $db = $orm->getRepository(User::class);
-            $db->add($user, true);
-        } catch (Exception $e){
-            echo $e;
-            $this->httpHandler->addError(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                "No se ha podido guardar el usuario por un error en el servidor"
-            );
-        }
-
     }
 
 
