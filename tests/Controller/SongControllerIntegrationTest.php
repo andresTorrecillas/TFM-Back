@@ -116,7 +116,6 @@ class SongControllerIntegrationTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::$client->request(Request::METHOD_GET, SongController::ROOT_PATH . "/" . $id);
-        echo self::$client->getResponse()->getContent();
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 

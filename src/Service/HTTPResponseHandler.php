@@ -60,6 +60,7 @@ class HTTPResponseHandler
     {
         if(!$this->httpErrorHandler->isCorrect()){
             $responseBody = $this->httpErrorHandler->getErrors();
+            $this->primaryStatus = $this->httpErrorHandler->getErrorStatusCode();
         } else{
             $responseBody = "";
             $this->primaryStatus = Response::HTTP_NO_CONTENT;
@@ -70,6 +71,7 @@ class HTTPResponseHandler
     public function generateLoginResponse(mixed $body): Response {
         if(!$this->httpErrorHandler->isCorrect()){
             $responseBody = $this->httpErrorHandler->getErrors();
+            $this->primaryStatus = $this->httpErrorHandler->getErrorStatusCode();
         } else{
             $responseBody = $body;
         }
@@ -79,6 +81,7 @@ class HTTPResponseHandler
     public function generateRegisterResponse(mixed $body): Response {
         if(!$this->httpErrorHandler->isCorrect()){
             $responseBody = $this->httpErrorHandler->getErrors();
+            $this->primaryStatus = $this->httpErrorHandler->getErrorStatusCode();
         } else{
             $responseBody = $body;
             $this->primaryStatus = Response::HTTP_CREATED;
