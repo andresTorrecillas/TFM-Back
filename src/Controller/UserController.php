@@ -98,9 +98,11 @@ class UserController extends AbstractController
     /**
      * @Route("/logout", name="logout_user", methods={"GET"})
      */
-    public function logout(){
+    public function logout(): Response
+    {
         $session = $this->requestStack->getSession();
         $session->invalidate();
+        return $this->httpHandler->generateLogoutResponse();
     }
 
     /**
