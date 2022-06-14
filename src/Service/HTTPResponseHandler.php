@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -79,6 +80,11 @@ class HTTPResponseHandler
             $this->primaryStatus = Response::HTTP_CREATED;
         }
         return $this->generateBasicResponse($responseBody, $this->primaryStatus);
+    }
+
+    public function generateLogoutResponse(): Response
+    {
+        return $this->generateBasicResponse("", Response::HTTP_OK);
     }
 
     private function generateBasicResponse(mixed $body, int $status, bool $options = false): Response {
