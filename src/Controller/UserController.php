@@ -194,11 +194,13 @@ class UserController extends AbstractController
     private function saveInSession(array $data, bool $invalidate = false){
         $session = $this->requestStack->getSession();
         if($invalidate){
-            $session->invalidate();
+            $session->clear();
+            $session->migrate(true);
         }
         foreach ($data as $key => $element){
             $session->set($key, $element);
         }
+
     }
 
 

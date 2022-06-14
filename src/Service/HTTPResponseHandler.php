@@ -95,11 +95,14 @@ class HTTPResponseHandler
                 "Access-Control-Allow-Headers" => "content-type, authorization"
             ];
         }
+        //$headers[""]
         return $headers;
     }
 
     private function generateAuthToken(): string|null{
         $session = $this->requestStack->getSession();
+        echo json_encode($session->all());
+        echo $session->getId();
         $userName = $session->get("user");
         if(isset($userName)){
             return $this->jwtService->generateTokenByUserName($userName);
