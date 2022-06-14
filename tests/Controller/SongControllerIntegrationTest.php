@@ -2,7 +2,8 @@
 
 namespace App\Tests\Controller;
 
-use App\DataFixtures\SongFixtures;
+use App\Controller\UserController;
+use App\DataFixtures\TestFixtures;
 use App\Entity\Song;
 use App\Controller\SongController;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
@@ -12,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 
 class SongControllerIntegrationTest extends WebTestCase
 {
@@ -25,8 +28,24 @@ class SongControllerIntegrationTest extends WebTestCase
         self::$client = $this->createClient();
         $databaseTool = self::$client->getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([
-            SongFixtures::class
+            TestFixtures::class
         ]);
+        $session = new Session(new MockFileSessionStorage());
+        self::$client->getContainer()->set('session', $session);
+        $this->login();
+    }
+
+    private function login(){
+        self::$client->request(
+            Request::METHOD_POST,
+            UserController::ROOT_PATH . "/login",
+            content: json_encode(
+                [
+                    "userName" => 'test',
+                    "password" => base64_encode('test_psw')
+                ]
+            )
+        );
     }
 
     public static function setUpBeforeClass(): void

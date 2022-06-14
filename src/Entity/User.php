@@ -40,8 +40,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     public function __construct(string $userName)
     {
+        $this->id = 0;
         $this->uuid = Uuid::v3(Uuid::fromString(Uuid::NAMESPACE_URL), $userName)->toBase32();
         $this->userName = $userName;
+        $this->name = $userName;
     }
 
 
@@ -153,9 +155,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     /**
      * @param string $band_name
      */
-    public function setBandName(string $band_name): void
+    public function setBandName(string $band_name): self
     {
         $this->bandName = $band_name;
+
+        return $this;
     }
 
     /**

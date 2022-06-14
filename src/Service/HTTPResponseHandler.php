@@ -26,22 +26,17 @@ class HTTPResponseHandler
 
     public function addError(int $status, string $message = ''): void
     {
-        /*$httpError = new HttpError();
-        $httpError->setMessage($message)->setStatus($status);
-        if($status >= Response::HTTP_BAD_REQUEST && $status < Response::HTTP_INTERNAL_SERVER_ERROR){
-            $this->primaryStatus = $status == Response::HTTP_NOT_FOUND ?
-                Response::HTTP_NOT_FOUND :
-                Response::HTTP_BAD_REQUEST;
-        } else if($this->correct){
-            $this->primaryStatus = Response::HTTP_INTERNAL_SERVER_ERROR;
-        }
-        $this->correct = false;
-        $this->errors[] = $httpError;*/
         $this->httpErrorHandler->addError($message, $status);
     }
 
     public function generateResponse(mixed $body = '', int $correctStatus = Response::HTTP_OK): Response
     {
+        if($this->httpErrorHandler->isCorrect()) {
+            $token = $this->generateAuthToken();
+            if (isset($token)) {
+                $this->addHeaders(["authorization" => "Bearer " . $token]);
+            }
+        }
         if(!$this->httpErrorHandler->isCorrect()){
             $responseBody = $this->httpErrorHandler->getErrors();
             $this->primaryStatus = $this->httpErrorHandler->getErrorStatusCode();
@@ -49,10 +44,7 @@ class HTTPResponseHandler
             $responseBody = $body;
             $this->primaryStatus = $correctStatus;
         }
-        $token = $this->generateAuthToken();
-        if(isset($token)){
-            $this->addHeaders(["authorization" => "Bearer " . $token]);
-        }
+
         return $this->generateBasicResponse($responseBody, $this->primaryStatus);
     }
 
@@ -111,8 +103,16 @@ class HTTPResponseHandler
         $userName = $session->get("user");
         if(isset($userName)){
             return $this->jwtService->generateTokenByUserName($userName);
+        } else{
+            $this->httpErrorHandler
+                ->addError(
+                    "El usuario no está correctamente autenticado",
+                    Response::HTTP_FORBIDDEN
+                );
+            return null;
         }
-        return null;
+
+
     }
 
 }
