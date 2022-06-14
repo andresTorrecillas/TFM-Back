@@ -17,9 +17,9 @@ class HTTPErrorHandler
         $this->errorStatus = Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    public function addError(string $message, int $status): void{
+    public function addError(string $message, int $status, ?string $details = null): void{
         $httpError = new HttpError();
-        $httpError->setMessage($message)->setStatus($status);
+        $httpError->setMessage($message)->setStatus($status)->setDetails($details);
         if($status >= Response::HTTP_BAD_REQUEST && $status < Response::HTTP_INTERNAL_SERVER_ERROR){
             $this->errorStatus = $status == Response::HTTP_NOT_FOUND ?
                 Response::HTTP_NOT_FOUND :

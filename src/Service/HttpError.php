@@ -8,6 +8,7 @@ use JsonSerializable;
 class HttpError implements JsonSerializable
 {
     private string $message;
+    private ?string $details;
     private int $status;
 
 
@@ -31,13 +32,20 @@ class HttpError implements JsonSerializable
         return $this;
     }
 
+    public function setDetails(?string $details): void
+    {
+        $this->details = $details;
+    }
 
-    #[ArrayShape(["message" => "string", "statusCode" => "int"])]
     public function jsonSerialize():array
     {
-        return [
+        $array = [
             "message" => $this->message,
             "statusCode" => $this->status
         ];
+        if(isset($this->details) && $_ENV["APP_ENV"] == "dev"){
+            $array["details"] = $this->details;
+        }
+        return $array;
     }
 }

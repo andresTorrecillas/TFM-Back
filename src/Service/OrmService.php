@@ -21,10 +21,11 @@ class OrmService
         try {
             $db = $this->orm->getRepository($entityClass);
             return $db->find($key);
-        } catch (Exception){
+        } catch (Exception $e){
             $this->httpErrorHandler->addError(
                 "Ha habido un error al acceder a la base de datos",
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage()
             );
             return null;
         }
@@ -35,10 +36,11 @@ class OrmService
         try {
             $db = $this->orm->getRepository($entityClass);
             return $db->findOneBy($key_value);
-        } catch (Exception){
+        } catch (Exception $e){
             $this->httpErrorHandler->addError(
                 "Ha habido un error al acceder a la base de datos",
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage()
             );
             return null;
         }
@@ -51,8 +53,9 @@ class OrmService
             return $db->findAll();
         }catch (Exception $e){
             $this->httpErrorHandler->addError(
-                "Ha habido un error al buscar en la base de datos. " . $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                "Ha habido un error al buscar en la base de datos. ",
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage()
             );
             return [];
         }
@@ -65,8 +68,9 @@ class OrmService
             $db->add($object, true);
         } catch (Exception $e){
             $this->httpErrorHandler->addError(
-                "Ha habido un error al guardar en la base de datos. " . $e->getMessage(),
+                "Ha habido un error al guardar en la base de datos. ",
                 Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage()
             );
         }
     }
@@ -77,8 +81,9 @@ class OrmService
             $db->remove($object, true);
         } catch (Exception $e){
             $this->httpErrorHandler->addError(
-                "Ha habido un error al eliminar de la base de datos. " . $e->getMessage(),
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                "Ha habido un error al eliminar de la base de datos. ",
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage()
             );
         }
     }

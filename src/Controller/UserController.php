@@ -68,36 +68,39 @@ class UserController extends AbstractController
     {
         $data = null;
         $logInUser = $this->getLogInUserFromRequest($request);
-        if (is_null($logInUser)){
-            $this->httpHandler->addError(
-                Response::HTTP_BAD_REQUEST,
-                "The content doesn't have the correct format"
-            );
-        } else{
+        if (!is_null($logInUser)){
             $userName = $logInUser["userName"];
             $password = $logInUser["password"];
             $user = $orm->findOneBy(["userName" => $userName], User::class);
-            if(isset($user)){
-                if($passwordHasher->isPasswordValid($user, $password)){
-                    $session = $this->requestStack->getSession();
-                    $session->invalidate();
-                    $session->set("auth", true);
-                    $session->set("user", $user->getUserName());
-                    $session->set("roles", $user->getRoles());
-                    $token = $jwtService->generateToken($user);
-                    $expirationDate = ($_ENV["JWT_TTL"] + microtime(true))* 1000;
-                    $expirationDate = round($expirationDate);
-                    $data = [
-                        "token" => $token,
-                        "expirationDate" => $expirationDate,
-                        "user" => $user
-                    ];
-                } else{
-                    $this->httpHandler->addError(Response::HTTP_UNAUTHORIZED, "Credenciales incorrectas");
-                }
+            if(isset($user) && $passwordHasher->isPasswordValid($user, $password)){
+                $this->saveInSession([
+                    "auth" => true,
+                    "user" => $user->getUserName()
+                ], true);
+                $token = $jwtService->generateToken($user);
+                $expirationDate = ($_ENV["JWT_TTL"] + microtime(true))* 1000;
+                $expirationDate = round($expirationDate);
+                $data = [
+                    "token" => $token,
+                    "expirationDate" => $expirationDate,
+                    "user" => $user
+                ];
+            } else{
+                $this->httpHandler->addError(
+                    Response::HTTP_UNAUTHORIZED,
+                    "Credenciales incorrectas"
+                );
             }
         }
         return $this->httpHandler->generateLoginResponse($data);
+    }
+
+    /**
+     * @Route("/logout", name="logout_user", methods={"GET"})
+     */
+    public function logout(){
+        $session = $this->requestStack->getSession();
+        $session->invalidate();
     }
 
     /**
@@ -119,6 +122,11 @@ class UserController extends AbstractController
                 "userName" => $receivedUser["userName"],
                 "password" => base64_decode($receivedUser["password"])
             ];
+        } else{
+            $this->httpHandler->addError(
+                Response::HTTP_BAD_REQUEST,
+                "The content doesn't have the correct format"
+            );
         }
         return $logInUser;
     }
@@ -181,6 +189,18 @@ class UserController extends AbstractController
             next($data);
         }
         return $safe;
+    }
+
+    private function saveInSession(array $data, bool $invalidate = false){
+        $session = $this->requestStack->getSession();
+        if($invalidate){
+            $session->clear();
+            $session->migrate(true);
+        }
+        foreach ($data as $key => $element){
+            $session->set($key, $element);
+        }
+
     }
 
 
