@@ -14,6 +14,7 @@ class EventListeners implements EventSubscriberInterface
         if ($event->isMainRequest() && isset($_ENV["CORS_ORIGIN"])) {
             $response = $event->getResponse();
             $response->headers->set("Access-Control-Allow-Origin", $_ENV["CORS_ORIGIN"]);
+            $response->headers->set("Access-Control-Allow-Credentials", "true");
             if($response->getStatusCode() !== Response::HTTP_NO_CONTENT){
                 $response->headers->set("Content-Type", "application/json");
             }

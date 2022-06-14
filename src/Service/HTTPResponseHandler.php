@@ -92,17 +92,14 @@ class HTTPResponseHandler
         if($options){
             $headers = [
                 "Access-Control-Allow-Methods" => "POST, GET, DELETE, PATCH",
-                "Access-Control-Allow-Headers" => "content-type, authorization"
+                "Access-Control-Allow-Headers" => "content-type, authorization, withCredentials"
             ];
         }
-        //$headers[""]
         return $headers;
     }
 
     private function generateAuthToken(): string|null{
         $session = $this->requestStack->getSession();
-        echo json_encode($session->all());
-        echo $session->getId();
         $userName = $session->get("user");
         if(isset($userName)){
             return $this->jwtService->generateTokenByUserName($userName);
