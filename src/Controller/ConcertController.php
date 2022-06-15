@@ -25,11 +25,20 @@ class ConcertController extends AbstractController
     }
 
     /**
-     * @Route("", name="app_concert")]
+     * @Route("", name="app_concert", methods={"GET"})]
      */
     public function list(): Response
     {
         $concertList = $this->orm->findAll(Concert::class);
         return $this->httpHandler->generateResponse($concertList);
+    }
+
+    /**
+     * @Route("", name="options_concert", methods={"OPTIONS"})
+     * @Route("/{id}", name="options_id_concert", methods={"OPTIONS"})
+     */
+    public function optionsRequest(): Response
+    {
+        return $this->httpHandler->generateOptionsResponse();
     }
 }
