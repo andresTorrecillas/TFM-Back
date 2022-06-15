@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -88,7 +87,7 @@ class HTTPResponseHandler
     }
 
     private function generateBasicResponse(mixed $body, int $status, bool $options = false): Response {
-        $message = empty($body)?$body:json_encode($body);
+        $message = empty($body) && !is_array($body)?$body:json_encode($body);
         $headers = $this->generateHeaders($options);
         return new Response($message, $status, $headers);
     }
