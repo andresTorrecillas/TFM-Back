@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\Base64Service;
 use App\Service\HTTPResponseHandler;
 use App\Service\JWTService;
 use App\Service\OrmService;
@@ -122,7 +123,7 @@ class UserController extends AbstractController
         if(isset($receivedUser, $receivedUser["userName"], $receivedUser["password"])){
             $logInUser = [
                 "userName" => $receivedUser["userName"],
-                "password" => base64_decode($receivedUser["password"])
+                "password" => Base64Service::decode($receivedUser["password"])
             ];
         } else{
             $this->httpHandler->addError(
@@ -144,7 +145,7 @@ class UserController extends AbstractController
             $userArray = $receivedUser["user"];
             $user = new User($userArray["userName"]);
             $user->setName($userArray["name"]??$user->getUserName());
-            $plainTextPassword = base64_decode($receivedUser["password"]);
+            $plainTextPassword = Base64Service::decode($receivedUser["password"]);
             $hashedPassword = $passwordHasher->hashPassword(
                 $user,
                 $plainTextPassword
