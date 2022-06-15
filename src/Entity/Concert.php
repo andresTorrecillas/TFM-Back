@@ -15,6 +15,9 @@ class Concert
     #[ORM\GeneratedValue(strategy: "NONE")]
     private string $id;
 
+    #[ORM\Column(type: 'string', length: 60, unique: true)]
+    private string $name;
+
     #[ORM\Column(type: 'string', length: 9)]
     private string $color;
 
@@ -50,6 +53,17 @@ class Concert
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): Concert
+    {
+        $this->name = $name;
+        return $this;
     }
 
     public function getColor(): string
