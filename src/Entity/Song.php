@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SongRepository;
+use App\Service\Base64Service;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 use JsonSerializable;
@@ -23,7 +24,7 @@ class Song implements JsonSerializable
 
     public function __construct(string $id = null)
     {
-        $this->id = $id?? $this->base64url_encode(uniqid());
+        $this->id = $id?? Base64Service::url_encode(uniqid());
         $this->title = "";
         $this->lyrics = "";
     }
@@ -70,12 +71,6 @@ class Song implements JsonSerializable
     {
         return str_replace([",","'"], ["\,", "\'"], $input);
     }
-
-    private function base64url_encode($data): string
-    {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-    }
-
 
 #[ArrayShape(['id' => "int", 'title' => "string", 'lyrics' => "null|string"])]
     public function jsonSerialize(): array
