@@ -25,12 +25,24 @@ class ConcertController extends AbstractController
     }
 
     /**
-     * @Route("", name="app_concert", methods={"GET"})]
+     * @Route("", name="app_list_concerts", methods={"GET"})]
      */
     public function list(): Response
     {
         $concertList = $this->orm->findAll(Concert::class);
         return $this->httpHandler->generateResponse($concertList);
+    }
+
+    /**
+     * @Route("/{id}", name="app_get_concert", methods={"GET"})
+     */
+    public function getConcert(string $id): Response
+    {
+        $concert = $this->orm->find($id, Concert::class);
+        if(is_null($concert)){
+            $this->httpHandler->addError(Response::HTTP_NOT_FOUND, "No se ha encontrado ningún concierto con el id indicado");
+        }
+        return $this->httpHandler->generateResponse($concert);
     }
 
     /**
