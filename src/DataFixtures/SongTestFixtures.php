@@ -10,7 +10,7 @@ use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class TestFixtures extends Fixture
+class SongTestFixtures extends Fixture
 {
     private static FakerGenerator $faker;
     private const NUMBER_SONGS = 5;
