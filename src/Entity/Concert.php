@@ -6,9 +6,10 @@ use App\Repository\ConcertRepository;
 use App\Service\Base64Service;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: ConcertRepository::class)]
-class Concert
+class Concert implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 30, unique: true)]
@@ -136,5 +137,20 @@ class Concert
         $this->coordinates = $coordinates;
 
         return $this;
+    }
+
+
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "name" => $this->name,
+            "color" => $this->color,
+            "contractState" => $this->state,
+            "date" => $this->date,
+            "address" => $this->address,
+            "modality" => $this->modality,
+            "coordinates" => $this->coordinates
+        ];
     }
 }

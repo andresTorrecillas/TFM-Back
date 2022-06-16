@@ -3,7 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Controller\UserController;
-use App\DataFixtures\TestFixtures;
+use App\DataFixtures\SongTestFixtures;
 use App\Entity\Song;
 use App\Controller\SongController;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
@@ -28,7 +28,7 @@ class SongControllerIntegrationTest extends WebTestCase
         self::$client = $this->createClient();
         $databaseTool = self::$client->getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([
-            TestFixtures::class
+            SongTestFixtures::class
         ]);
         $session = new Session(new MockFileSessionStorage());
         self::$client->getContainer()->set('session', $session);
