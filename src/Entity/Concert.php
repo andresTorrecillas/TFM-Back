@@ -39,7 +39,7 @@ class Concert implements JsonSerializable
 
     public function __construct()
     {
-        $this->id = Base64Service::encode(uniqid());
+        $this->id = Base64Service::url_encode(uniqid(more_entropy: true));
         $this->color = '#00000000';
         $this->state = 'Created';
         $this->date = new DateTime();
