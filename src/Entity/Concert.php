@@ -14,7 +14,7 @@ use JsonSerializable;
 class Concert implements JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 30, unique: true)]
+    #[ORM\Column(type: 'string', length: 60, unique: true)]
     #[ORM\GeneratedValue(strategy: "NONE")]
     private string $id;
 
@@ -151,7 +151,7 @@ class Concert implements JsonSerializable
     }
 
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             "id" => $this->id,

@@ -68,6 +68,18 @@ class ConcertController extends AbstractController
     }
 
     /**
+     * @Route("/{id}", name="delete_concert", methods={"DELETE"})
+     */
+    public function delete(string $id): Response
+    {
+        $concert = $this->orm->find($id, Concert::class);
+        if(isset($concert)){
+            $this->orm->remove($concert);
+        }
+        return $this->httpHandler->generateResponse(correctStatus: Response::HTTP_NO_CONTENT);
+    }
+
+    /**
      * @Route("", name="options_concert", methods={"OPTIONS"})
      * @Route("/{id}", name="options_id_concert", methods={"OPTIONS"})
      */

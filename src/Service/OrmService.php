@@ -75,9 +75,9 @@ class OrmService
         }
     }
 
-    public function remove(mixed $object, string $entityClass): void{
+    public function remove(mixed $object): void{
         try {
-            $db = $this->orm->getRepository($entityClass);
+            $db = $this->orm->getRepository($object::class);
             $db->remove($object, true);
         } catch (Exception $e){
             $this->httpErrorHandler->addError(

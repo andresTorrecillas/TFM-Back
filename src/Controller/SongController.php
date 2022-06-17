@@ -77,7 +77,7 @@ class SongController extends AbstractController
     {
         $song = $this->orm->find($id, Song::class);
         if(isset($song)){
-            $this->orm->remove($song, Song::class);
+            $this->orm->remove($song);
         }
         return $this->httpHandler->generateResponse(correctStatus: Response::HTTP_NO_CONTENT);
     }
