@@ -11,7 +11,6 @@ use Doctrine\Persistence\ManagerRegistry;
  *
  * @method Concert|null find($id, $lockMode = null, $lockVersion = null)
  * @method Concert|null findOneBy(array $criteria, array $orderBy = null)
- * @method Concert[]    findAll()
  * @method Concert[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ConcertRepository extends ServiceEntityRepository
@@ -37,6 +36,17 @@ class ConcertRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function findAll(): array {
+        $result = parent::findAll();
+        usort($result, array($this, "naturalComparator"));
+        return $result;
+    }
+
+    private function naturalComparator(Concert $concertA, Concert $concertB): int
+    {
+        return strnatcasecmp($concertA->getName(), $concertB->getName());
     }
 
 //    /**

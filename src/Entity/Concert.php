@@ -5,14 +5,16 @@ namespace App\Entity;
 use App\Repository\ConcertRepository;
 use App\Service\Base64Service;
 use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: ConcertRepository::class)]
 class Concert implements JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 30, unique: true)]
+    #[ORM\Column(type: 'string', length: 60, unique: true)]
     #[ORM\GeneratedValue(strategy: "NONE")]
     private string $id;
 
@@ -34,9 +36,6 @@ class Concert implements JsonSerializable
     #[ORM\Column(type: 'string', length: 120)]
     private string $modality;
 
-    #[ORM\Column(type: 'json')]
-    private array $coordinates;
-
     public function __construct()
     {
         $this->id = Base64Service::url_encode(uniqid(more_entropy: true));
@@ -45,10 +44,6 @@ class Concert implements JsonSerializable
         $this->date = new DateTime();
         $this->address = '';
         $this->modality = 'Base';
-        $this->coordinates = [
-            "latitude" => 0,
-            "longitude" => 0,
-        ];
     }
 
     public function getId(): string
@@ -127,30 +122,45 @@ class Concert implements JsonSerializable
         return $this;
     }
 
-    public function getCoordinates(): array
+
+    public function initFromArray(array $data): bool
     {
-        return $this->coordinates;
+        foreach ($this as $key => &$value){
+            if(!empty($data[$key])){
+                if(is_array($data[$key])){
+                    try {
+                        $dateString =  str_replace('+0000', '', $data[$key]['_date']);
+                        $dateTimeZoneString = $data[$key]['_timezone'];
+                        $dateTimeZoneString = str_replace('\\', "", $dateTimeZoneString);
+                        $dateTimeZone = new DateTimeZone($dateTimeZoneString);
+                        $this->date = new DateTime($dateString, $dateTimeZone);
+                    } catch (Exception) {
+                        return false;
+                    }
+                } else{
+                    $value = $data[$key];
+                }
+            }
+        }
+        if(!empty($data['name'])){
+            $this->name = $data['name'];
+        } else{
+            return false;
+        }
+        return true;
     }
 
-    public function setCoordinates(array $coordinates): self
-    {
-        $this->coordinates = $coordinates;
 
-        return $this;
-    }
-
-
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             "id" => $this->id,
             "name" => $this->name,
             "color" => $this->color,
-            "contractState" => $this->state,
+            "state" => $this->state,
             "date" => $this->date,
             "address" => $this->address,
-            "modality" => $this->modality,
-            "coordinates" => $this->coordinates
+            "modality" => $this->modality
         ];
     }
 }
