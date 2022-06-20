@@ -76,4 +76,4 @@ jobs:
           DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_SECRET_KEY: '%env(JWT_SECRET)%'
-          JWT_PUBLIC_KEY: '%kernel.proyect_dir%/config/jwt/public.pem'
+          JWT_PUBLIC_KEY: './config/jwt/public.pem'
