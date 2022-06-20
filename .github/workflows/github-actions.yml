@@ -74,4 +74,6 @@ jobs:
         run: simple-phpunit
         env:
           DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_SECRET_KEY: '%env(JWT_SECRET)%'
+          JWT_PUBLIC_KEY: '%kernel.proyect_dir%/config/jwt/public.pem'
