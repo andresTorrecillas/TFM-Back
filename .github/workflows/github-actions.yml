@@ -77,3 +77,5 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_SECRET_KEY: '%env(JWT_SECRET)%'
           JWT_PUBLIC_KEY: './config/jwt/public.pem'
+          JWT_PASSPHRASE: 'towers&co'
+          JWT_TTL: 7200
