@@ -1,6 +1,9 @@
 # GitHub Action for Symfony with MySQL
 name: Testing Symfony with MySQL
-on: [push]
+on:
+  push:
+    branches:
+      - develop
 jobs:
   symfony:
     name: Symfony (PHP ${{ matrix.php-versions }})
@@ -71,3 +74,4 @@ jobs:
         run: simple-phpunit
         env:
           DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
