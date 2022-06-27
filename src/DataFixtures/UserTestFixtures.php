@@ -9,14 +9,12 @@ use Doctrine\Persistence\ObjectManager;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 /**
  * @codeCoverageIgnore
  */
-class UserFixtures extends Fixture
+class UserTestFixtures extends Fixture
 {
-    private static FakerGenerator $faker;
     private UserPasswordHasherInterface $passwordHasher;
 
     public function __construct(UserPasswordHasherInterface $passwordHasher)
@@ -26,13 +24,13 @@ class UserFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $user = new User("Andrés");
+        $user = new User('test');
         $hashedPassword = $this->passwordHasher->hashPassword(
             $user,
-            'velaband'
+            'test_psw'
         );
-        $user->setPassword($hashedPassword)
-            ->setBandName("Velaband");
+        $user->setBandName('testBand')
+        ->setPassword($hashedPassword);
         $manager->persist($user);
 
         $manager->flush();

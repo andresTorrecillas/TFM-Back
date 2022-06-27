@@ -6,6 +6,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 class OrmService
 {
     private HTTPErrorHandler $httpErrorHandler;

@@ -7,6 +7,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
+/**
+ * @codeCoverageIgnore
+ */
 class EventListeners implements EventSubscriberInterface
 {
     public function onKernelResponse(ResponseEvent $event): void

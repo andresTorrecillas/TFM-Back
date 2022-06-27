@@ -48,14 +48,10 @@ class SongController extends AbstractController
     {
         $song = $this->getSongFromRequestBody($request);
         if (isset($song)) {
-            try {
-                if(!$this->isUnique($song->getTitle())){
-                    $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "Ya existe una canción con el título indicado");
-                } else {
-                    $this->orm->persist($song);
-                }
-            } catch (Exception $exception){
-                $this->httpHandler->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
+            if(!$this->isUnique($song->getTitle())){
+                $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "Ya existe una canción con el título indicado");
+            } else {
+                $this->orm->persist($song);
             }
         }
         return $this->httpHandler->generateResponse($song, Response::HTTP_CREATED);

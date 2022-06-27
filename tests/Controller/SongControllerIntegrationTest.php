@@ -2,10 +2,11 @@
 
 namespace App\Tests\Controller;
 
+use App\Controller\SongController;
 use App\Controller\UserController;
 use App\DataFixtures\SongTestFixtures;
+use App\DataFixtures\UserTestFixtures;
 use App\Entity\Song;
-use App\Controller\SongController;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -28,7 +29,8 @@ class SongControllerIntegrationTest extends WebTestCase
         self::$client = $this->createClient();
         $databaseTool = self::$client->getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([
-            SongTestFixtures::class
+            SongTestFixtures::class,
+            UserTestFixtures::class
         ]);
         $session = new Session(new MockFileSessionStorage());
         self::$client->getContainer()->set('session', $session);
@@ -101,6 +103,45 @@ class SongControllerIntegrationTest extends WebTestCase
         self::assertSame($song->getLyrics(), $receivedSong["lyrics"]);
     }
 
+    public function testCreateSongWrongFormatIT()
+    {
+        $song = new Song(self::ID_PREFIX . "6");
+        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text());
+        $jsonSong = json_encode($song);
+        $jsonSong = str_replace($jsonSong, 'name', '');
+        self::$client->request(
+            Request::METHOD_POST,
+            SongController::ROOT_PATH,
+            content: $jsonSong
+        );
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $response = self::$client->getResponse();
+        $receivedData = json_decode($response->getContent(),true);
+        self::assertJson($response->getContent());
+        self::assertArrayHasKey("message", $receivedData[0], "JSON hasn't got message");
+        self::assertArrayHasKey("statusCode", $receivedData[0], "JSON hasn't got status code");
+    }
+
+    public function testCreateSongInvalidCharactersIT()
+    {
+        $song = new Song(self::ID_PREFIX . "6");
+        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text().'/');
+        $jsonArraySong = $song->jsonSerialize();
+        $jsonArraySong['lyrics'] .= '/';
+        self::$client->request(
+            Request::METHOD_POST,
+            SongController::ROOT_PATH,
+            content: json_encode($jsonArraySong)
+        );
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $response = self::$client->getResponse();
+        $receivedData = json_decode($response->getContent(),true);
+        self::assertJson($response->getContent());
+        self::assertArrayHasKey("message", $receivedData[0], "JSON hasn't got message");
+        self::assertArrayHasKey("statusCode", $receivedData[0], "JSON hasn't got status code");
+    }
+
+
     public function testCreateSongIdentityDbErrorIT()
     {
         $song = new Song(self::ID_PREFIX . 7);
@@ -163,6 +204,31 @@ class SongControllerIntegrationTest extends WebTestCase
             content: json_encode(["lyrics" => $updatedLyrics])
         );
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testOptionsIT(){
+        self::$client->request(
+            Request::METHOD_OPTIONS,
+            SongController::ROOT_PATH
+        );
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        $response = self::$client->getResponse();
+        $headers = $response->headers->all();
+        self::assertTrue($response->isEmpty());
+        self::assertEmpty($response->getContent());
+        self::assertArrayHasKey('access-control-allow-methods', $headers);
+        self::assertArrayHasKey('access-control-allow-headers', $headers);
+        self::$client->request(
+            Request::METHOD_OPTIONS,
+            SongController::ROOT_PATH . '/' . '{id}'
+        );
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        $response = self::$client->getResponse();
+        $headers = $response->headers->all();
+        self::assertTrue($response->isEmpty());
+        self::assertEmpty($response->getContent());
+        self::assertArrayHasKey('access-control-allow-methods', $headers);
+        self::assertArrayHasKey('access-control-allow-headers', $headers);
     }
 
     private function songComparator($a, $b):int{
