@@ -46,17 +46,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         $this->name = $userName;
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function getUuid(): ?string
     {
         return $this->uuid;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function setUuid(string $uuid): self
     {
         $this->uuid = $uuid;
@@ -66,7 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     /**
      * A visual identifier that represents this user.
-     *
+     * @codeCoverageIgnore
      * @see UserInterface
      */
     public function getUserIdentifier(): string
@@ -76,6 +82,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     /**
      * @see UserInterface
+     * @codeCoverageIgnore
      */
     public function getRoles(): array
     {
@@ -85,14 +92,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
         return array_unique($roles);
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function setRoles(array $roles): self
     {
         $this->roles = array_unique($roles);
 
         return $this;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function addRole(string $role): self
     {
         $this->roles[] = $role;
@@ -103,6 +114,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     /**
      * @return string
+     * @codeCoverageIgnore
      */
     public function getUserName(): string
     {
@@ -111,17 +123,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     /**
      * @param string $userName
+     * @codeCoverageIgnore
      */
     public function setUserName(string $userName): void
     {
         $this->userName = $userName;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -136,7 +153,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     {
         return $this->password;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function setPassword(string $password): self
     {
         $this->password = $password;
@@ -145,7 +164,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     }
 
     /**
-     * @return string
+     * @codeCoverageIgnore
      */
     public function getBandName(): string
     {
@@ -153,7 +172,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     }
 
     /**
-     * @param string $band_name
+     * @codeCoverageIgnore
      */
     public function setBandName(string $band_name): self
     {
@@ -164,6 +183,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     /**
      * @see UserInterface
+     * @codeCoverageIgnore
      */
     public function eraseCredentials(): void
     {

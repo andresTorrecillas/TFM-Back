@@ -10,6 +10,9 @@ use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class SongFixtures extends Fixture
 {
     private static FakerGenerator $faker;

@@ -54,14 +54,10 @@ class ConcertController extends AbstractController
     {
         $concert = $this->getConcertFromRequestBody($request);
         if (isset($concert)) {
-            try {
-                if(!$this->isUnique($concert->getName())){
-                    $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "Ya existe un concierto con el nombre indicado");
-                } else {
-                    $this->orm->persist($concert);
-                }
-            } catch (Exception $exception){
-                $this->httpHandler->addError(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getMessage());
+            if(!$this->isUnique($concert->getName())){
+                $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "Ya existe un concierto con el nombre indicado");
+            } else {
+                $this->orm->persist($concert);
             }
         }
         return $this->httpHandler->generateResponse($concert, Response::HTTP_CREATED);
@@ -101,7 +97,6 @@ class ConcertController extends AbstractController
             $concert = new Concert();
             if(!$concert->initFromArray($receivedConcert)) {
                 $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "No se ha enviado un concierto con un formato adecuado");
-                echo json_encode($receivedConcert);
                 return null;
             }
             return $concert;

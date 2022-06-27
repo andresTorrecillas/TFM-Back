@@ -32,17 +32,6 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("", name= "api_login")
-     */
-    public function index(): Response
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/UserController.php',
-        ]);
-
-    }
-    /**
      * @Route("/register", name="register_user", methods={"POST"})
      */
     public function register(
@@ -107,7 +96,6 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("", name="options_user", methods={"OPTIONS"})
      * @Route("/login", name="options_login", methods={"OPTIONS"})
      * @Route("/register", name="options_register", methods={"OPTIONS"})
      */

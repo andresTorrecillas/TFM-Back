@@ -46,27 +46,42 @@ class Concert implements JsonSerializable
         $this->modality = 'Base';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getId(): string
     {
         return $this->id;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setName(string $name): Concert
     {
         $this->name = $name;
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getColor(): string
     {
         return $this->color;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setColor(string $color): self
     {
         $this->color = $color;
@@ -74,11 +89,17 @@ class Concert implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getState(): string
     {
         return $this->state;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setState(string $state): self
     {
         $this->state = $state;
@@ -86,11 +107,17 @@ class Concert implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDate(): DateTime
     {
         return $this->date;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setDate(DateTime $date): self
     {
         $this->date = $date;
@@ -98,11 +125,17 @@ class Concert implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getAddress(): string
     {
         return $this->address;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setAddress(string $address): self
     {
         $this->address = $address;
@@ -110,18 +143,23 @@ class Concert implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getModality(): string
     {
         return $this->modality;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setModality(?string $modality): self
     {
         $this->modality = $modality;
 
         return $this;
     }
-
 
     public function initFromArray(array $data): bool
     {
@@ -150,7 +188,9 @@ class Concert implements JsonSerializable
         return true;
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function jsonSerialize(): array
     {
         return [

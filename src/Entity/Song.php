@@ -29,23 +29,32 @@ class Song implements JsonSerializable
         $this->lyrics = "";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function setTitle(string $title): self
     {
         $this->title = $title;
 
         return $this;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function getLyrics(): ?string
     {
         return $this->lyrics;
