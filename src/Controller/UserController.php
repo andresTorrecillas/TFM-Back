@@ -79,7 +79,7 @@ class UserController extends AbstractController
                     "user" => $user->getUserName()
                 ], true);
                 $token = $jwtService->generateToken($user);
-                $expirationDate = ($_ENV["JWT_TTL"] + microtime(true))* 1000;
+                $expirationDate = (($_ENV["JWT_TTL"]??7200) + microtime(true))* 1000;
                 $expirationDate = round($expirationDate);
                 $data = [
                     "token" => $token,

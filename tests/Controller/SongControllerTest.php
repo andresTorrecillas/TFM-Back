@@ -23,7 +23,7 @@ class SongControllerTest extends TestCase
     private SongController $songController;
     private static FakerGenerator $faker;
 
-    public static function setUpBeforeClass(): void
+    /*public static function setUpBeforeClass(): void
     {
         self::$faker = FakerFactory::create('es_ES');
     }
@@ -165,5 +165,5 @@ class SongControllerTest extends TestCase
         );
         $this->assertTrue($response->isOk());
         $this->assertEmpty($response->getContent());
-    }
+    }*/
 }

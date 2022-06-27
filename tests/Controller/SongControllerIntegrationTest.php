@@ -72,6 +72,7 @@ class SongControllerIntegrationTest extends WebTestCase
         self::assertJson($response->getContent());
         $receivedSongList = json_decode($response->getContent(), true);
         $index = 1;
+        usort($receivedSongList, array($this, 'songComparator'));
         foreach ($receivedSongList as $song){
             self::assertArrayHasKey("id", $song);
             if(!str_contains($song["id"], "Delete")) {
@@ -162,6 +163,10 @@ class SongControllerIntegrationTest extends WebTestCase
             content: json_encode(["lyrics" => $updatedLyrics])
         );
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    private function songComparator($a, $b):int{
+        return strcmp($a['id'], $b['id']);
     }
 
 
