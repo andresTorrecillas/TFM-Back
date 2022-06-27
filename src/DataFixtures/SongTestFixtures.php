@@ -22,7 +22,7 @@ class SongTestFixtures extends Fixture
         for ($i = 1; $i <= self::NUMBER_SONGS; $i ++){
             $title = ($i == self::NUMBER_SONGS)
                 ? "A Eliminar"
-                : self::$faker->sentence(3) . " song " . $i;
+                : self::$faker->sentence(1) . " song " . $i;
             $reference = ($i == self::NUMBER_SONGS)
                 ? "NjZ-Delete"
                 : "NjI5YmE4ZjcwYjJhMw-" . $i;
