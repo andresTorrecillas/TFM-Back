@@ -43,7 +43,7 @@ class OrmService
             $this->httpErrorHandler->addError(
                 "Ha habido un error al acceder a la base de datos",
                 Response::HTTP_INTERNAL_SERVER_ERROR,
-                $e->getMessage()
+                $e->getMessage() . $e->getTraceAsString()
             );
             return null;
         }
