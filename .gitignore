@@ -22,3 +22,4 @@
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/private.pem
 ###< lexik/jwt-authentication-bundle ###
+/html-coverage/
