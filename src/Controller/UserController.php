@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\BandUser;
 use App\Service\Base64Service;
 use App\Service\HTTPResponseHandler;
 use App\Service\JWTService;
@@ -61,7 +61,7 @@ class UserController extends AbstractController
         if (!is_null($logInUser)){
             $userName = $logInUser["userName"];
             $password = $logInUser["password"];
-            $user = $orm->findOneBy(["userName" => $userName], User::class);
+            $user = $orm->findOneBy(["userName" => $userName], BandUser::class);
             if(isset($user) && $passwordHasher->isPasswordValid($user, $password)){
                 $this->saveInSession([
                     "auth" => true,
@@ -125,13 +125,13 @@ class UserController extends AbstractController
     private function getUserFromRequest(
         Request $request,
         UserPasswordHasherInterface $passwordHasher
-    ): User|null
+    ): BandUser|null
     {
         $body = $request->getContent();
         $receivedUser = json_decode($body, true);
         if ($this->isUserDataComplete($receivedUser) && $this->isUserDataSafe($receivedUser)) {
             $userArray = $receivedUser["user"];
-            $user = new User($userArray["userName"]);
+            $user = new BandUser($userArray["userName"]);
             $user->setName($userArray["name"]??$user->getUserName());
             $plainTextPassword = Base64Service::decode($receivedUser["password"]);
             $hashedPassword = $passwordHasher->hashPassword(

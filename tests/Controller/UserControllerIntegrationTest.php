@@ -106,7 +106,7 @@ class UserControllerIntegrationTest extends WebTestCase
     public function testRegisterIT()
     {
         $password = 'MTIzNDU2'; //base64 url encoded
-        $userName = 'New User';
+        $userName = 'New BandUser';
         $user = [
             "password" => $password,
             "user" =>  [ "userName" => $userName ]
@@ -126,7 +126,7 @@ class UserControllerIntegrationTest extends WebTestCase
     public function testRegisterBadFormattedIT()
     {
         $password = 'MTIzNDU2'; //base64 url encoded
-        $userName = 'New User';
+        $userName = 'New BandUser';
         $user = [
             "user" =>  [ "userName" => $userName, "password" => $password ]
         ];

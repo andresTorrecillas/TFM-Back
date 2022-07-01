@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Song;
-use App\Entity\User;
+use App\Entity\BandUser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory as FakerFactory;
@@ -26,7 +26,7 @@ class UserFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $user = new User("Andrés");
+        $user = new BandUser("Andrés");
         $hashedPassword = $this->passwordHasher->hashPassword(
             $user,
             'velaband'

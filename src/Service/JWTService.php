@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\User;
+use App\Entity\BandUser;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -21,7 +21,7 @@ class JWTService
     }
 
     public function generateTokenByUserName(string $userName): string|null{
-        $user = $this->orm->findOneBy(["userName" => $userName], User::class);
+        $user = $this->orm->findOneBy(["userName" => $userName], BandUser::class);
         return is_null($user)?null:$this->generateToken($user);
     }
 
