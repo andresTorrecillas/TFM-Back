@@ -43,7 +43,7 @@ class HttpError implements JsonSerializable
             "message" => $this->message,
             "statusCode" => $this->status
         ];
-        if(isset($this->details) && $_ENV["APP_ENV"] == "dev"){
+        if(isset($this->details) /*&& $_ENV["APP_ENV"] == "dev"*/){
             $array["details"] = $this->details;
         }
         return $array;
