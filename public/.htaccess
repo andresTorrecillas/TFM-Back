@@ -3,7 +3,7 @@
 # mod_rewrite). Additionally, this reduces the matching process for the
 # start page (path "/") because otherwise Apache will apply the rewriting rules
 # to each configured DirectoryIndex file (e.g. index.php, index.html, index.pl).
-DirectoryIndex index.php
+DirectoryIndex index.php, index.html
 
 # By default, Apache does not evaluate symbolic links if you did not enable this
 # feature in your server configuration. Uncomment the following line if you
@@ -54,8 +54,6 @@ DirectoryIndex index.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ %{ENV:BASE}/index.php [L]
 
-    RewriteCond %{REQUEST_URI} -d
-    RewriteRule ^ %{ENV:BASE}/front/index.html [L]
 </IfModule>
 
 <IfModule !mod_rewrite.c>
