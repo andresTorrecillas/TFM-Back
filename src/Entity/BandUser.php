@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use JetBrains\PhpStorm\ArrayShape;
 use JsonSerializable;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -36,6 +39,9 @@ class BandUser implements UserInterface, PasswordAuthenticatedUserInterface, Jso
     #[ORM\Column(type: 'string', length: 60)]
     private string $bandName;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Role::class)]
+    private PersistentCollection $bandRoles;
+
 
 
     public function __construct(string $userName)
@@ -44,6 +50,7 @@ class BandUser implements UserInterface, PasswordAuthenticatedUserInterface, Jso
         $this->uuid = Uuid::v3(Uuid::fromString(Uuid::NAMESPACE_URL), $userName)->toBase32();
         $this->userName = $userName;
         $this->name = $userName;
+        $this->bandName = '';
     }
 
     /**
@@ -171,6 +178,15 @@ class BandUser implements UserInterface, PasswordAuthenticatedUserInterface, Jso
         return $this->bandName;
     }
 
+    public function getBandNamesList(): array
+    {
+        $bandNames = [];
+        foreach ($this->bandRoles as $role){
+            $bandNames[] = $role->getBand()->getName();
+        }
+        return $bandNames;
+    }
+
     /**
      * @codeCoverageIgnore
      */
@@ -192,7 +208,7 @@ class BandUser implements UserInterface, PasswordAuthenticatedUserInterface, Jso
     }
 
 
-    #[ArrayShape(["id" => "int", "uuid" => "string", "name" => "string", "userName" => "string", "bandName" => "string"])]
+    #[ArrayShape(["id" => "int", "uuid" => "string", "name" => "string", "userName" => "string", "bandName" => "string", "bands" => "string"])]
     public function jsonSerialize(): array
     {
         return [
@@ -200,7 +216,30 @@ class BandUser implements UserInterface, PasswordAuthenticatedUserInterface, Jso
             "uuid" => $this->uuid,
             "name" => $this->name,
             "userName" => $this->userName,
-            "bandName" => $this->bandName
+            "bandName" => $this->bandName,
+            "bands" => $this->getBandNamesList()
         ];
+    }
+
+    public function addRoles(Role $roles): self
+    {
+        if (!$this->bandRoles->contains($roles)) {
+            $this->bandRoles[] = $roles;
+            $roles->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRoles(Role $roles): self
+    {
+        if ($this->bandRoles->removeElement($roles)) {
+            // set the owning side to null (unless already changed)
+            if ($roles->getUser() === $this) {
+                $roles->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
