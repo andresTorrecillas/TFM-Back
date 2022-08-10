@@ -40,7 +40,7 @@ class BandUser implements UserInterface, PasswordAuthenticatedUserInterface, Jso
     private string $bandName;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Role::class)]
-    private PersistentCollection $bandRoles;
+    private Collection $bandRoles;
 
 
 
@@ -51,6 +51,7 @@ class BandUser implements UserInterface, PasswordAuthenticatedUserInterface, Jso
         $this->userName = $userName;
         $this->name = $userName;
         $this->bandName = '';
+        $this->bandRoles = new ArrayCollection();
     }
 
     /**

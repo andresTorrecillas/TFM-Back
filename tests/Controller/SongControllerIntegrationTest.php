@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Controller\SongController;
 use App\Controller\UserController;
+use App\DataFixtures\BandTestFixtures;
 use App\DataFixtures\SongTestFixtures;
 use App\DataFixtures\UserTestFixtures;
 use App\Entity\Song;
@@ -30,7 +31,8 @@ class SongControllerIntegrationTest extends WebTestCase
         $databaseTool = self::$client->getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([
             SongTestFixtures::class,
-            UserTestFixtures::class
+            UserTestFixtures::class,
+            BandTestFixtures::class
         ]);
         $session = new Session(new MockFileSessionStorage());
         self::$client->getContainer()->set('session', $session);
@@ -83,6 +85,19 @@ class SongControllerIntegrationTest extends WebTestCase
             self::assertArrayHasKey("title", $song);
             self::assertArrayHasKey("lyrics", $song);
             $index ++;
+        }
+    }
+
+    public function testGetBandSongsIT(){
+        self::$client->request(Request::METHOD_GET, SongController::ROOT_PATH . '?band=testBand-1');
+        $response = self::$client->getResponse();
+        self::assertResponseIsSuccessful();
+        self::assertJson($response->getContent());
+        $receivedSongList = json_decode($response->getContent(), true);
+        foreach ($receivedSongList as $song){
+            self::assertArrayHasKey("id", $song);
+            self::assertArrayHasKey("title", $song);
+            self::assertArrayHasKey("lyrics", $song);
         }
     }
 

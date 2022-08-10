@@ -14,7 +14,7 @@ use Faker\Generator as FakerGenerator;
 class SongTestFixtures extends Fixture
 {
     private static FakerGenerator $faker;
-    private const NUMBER_SONGS = 5;
+    public const NUMBER_SONGS = 5;
 
     public function load(ObjectManager $manager): void
     {

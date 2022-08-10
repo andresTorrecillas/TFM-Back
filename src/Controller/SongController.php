@@ -2,13 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Band;
 use App\Entity\Song;
-use App\Repository\SongRepository;
+use App\Service\AuthService;
 use App\Service\HTTPResponseHandler;
-use App\Service\JWTService;
 use App\Service\OrmService;
-use Doctrine\Persistence\ManagerRegistry;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,11 +20,13 @@ class SongController extends AbstractController
     private HTTPResponseHandler $httpHandler;
     public const ROOT_PATH = "/api/song";
     private OrmService $orm;
+    private AuthService $authService;
 
-    public function __construct(HTTPResponseHandler $httpHandler, OrmService $orm)
+    public function __construct(HTTPResponseHandler $httpHandler, OrmService $orm, AuthService $authService)
     {
         $this->httpHandler = $httpHandler;
         $this->orm = $orm;
+        $this->authService = $authService;
     }
 
     /**
@@ -60,10 +60,28 @@ class SongController extends AbstractController
     /**
      * @Route("", name="list_songs", methods={"GET"})
      */
-    public function getList(): Response
+    public function getList(Request $request): Response
     {
-        $songList = $this->orm->findAll(Song::class);
+        $songList = [];
+        if($request->query->has('band')){
+            $band = $request->query->get('band');
+            if($this->authService->isBandMember($band)){
+                $songList = $this->getBandSongs($band);
+            } else{
+                $this->httpHandler->addError(Response::HTTP_FORBIDDEN, "The band indicated is not one of yours");
+            }
+
+        } else{
+            $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "There's no specified band");
+        }
         return $this->httpHandler->generateResponse($songList);
+    }
+
+    private function getBandSongs(string $band_name): array
+    {
+        $band = $this->orm->findOneBy(['name'=>$band_name], Band::class);
+        $songList = $band->getSongs();
+        return $songList->isEmpty() ? [] : $songList->getValues();
     }
 
     /**
@@ -101,6 +119,7 @@ class SongController extends AbstractController
     /**
      * @Route("", name="options_songs", methods={"OPTIONS"})
      * @Route("/{id}", name="options_id_songs", methods={"OPTIONS"})
+     * @Route("/band/{band_name}", name="options_band_songs", methods={"OPTIONS"})
      */
     public function optionsRequest(): Response{
         return $this->httpHandler->generateOptionsResponse();

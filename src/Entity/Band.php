@@ -6,9 +6,10 @@ use App\Repository\BandRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: BandRepository::class)]
-class Band
+class Band implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -16,20 +17,26 @@ class Band
     private int $id;
 
     #[ORM\Column(type: 'string', length: 60)]
-    private ?string $name;
+    private string $name;
 
     #[ORM\OneToMany(mappedBy: 'band', targetEntity: Role::class, orphanRemoval: true)]
     private Collection $roles;
 
-    #[ORM\ManyToMany(targetEntity: song::class, inversedBy: 'bands')]
+    #[ORM\ManyToMany(targetEntity: Song::class, inversedBy: 'bands')]
     private Collection $songs;
+
+    public function __construct()
+    {
+        $this->roles = new ArrayCollection();
+        $this->songs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -93,5 +100,13 @@ class Band
         $this->songs->removeElement($song);
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            "id" => $this->id,
+            "name" => $this->name
+        ];
     }
 }

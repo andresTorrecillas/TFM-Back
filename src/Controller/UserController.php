@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\BandUser;
+use App\Service\AuthService;
 use App\Service\Base64Service;
 use App\Service\HTTPResponseHandler;
 use App\Service\JWTService;
@@ -23,12 +24,14 @@ class UserController extends AbstractController
     private RequestStack $requestStack;
     private HTTPResponseHandler $httpHandler;
     private OrmService $orm;
+    private AuthService $authService;
 
-    public function __construct(OrmService $orm, RequestStack $requestStack, HTTPResponseHandler $httpHandler)
+    public function __construct(OrmService $orm, RequestStack $requestStack, HTTPResponseHandler $httpHandler, AuthService $authService)
     {
         $this->requestStack = $requestStack;
         $this->httpHandler = $httpHandler;
         $this->orm = $orm;
+        $this->authService = $authService;
     }
 
     /**
@@ -75,6 +78,7 @@ class UserController extends AbstractController
                     "expirationDate" => $expirationDate,
                     "user" => $user
                 ];
+                $this->authService->setUser($user);
             } else{
                 $this->httpHandler->addError(
                     Response::HTTP_UNAUTHORIZED,
