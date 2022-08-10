@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\SongRepository;
 use App\Service\Base64Service;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 use JsonSerializable;
@@ -21,6 +23,9 @@ class Song implements JsonSerializable
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $lyrics;
+
+    #[ORM\ManyToMany(targetEntity: Band::class, mappedBy: 'songs')]
+    private $bands;
 
     public function __construct(string $id = null)
     {
@@ -90,4 +95,31 @@ class Song implements JsonSerializable
             'lyrics'=>$this->lyrics
         );
     }
+
+/**
+ * @return Collection<int, Band>
+ */
+public function getBands(): Collection
+{
+    return $this->bands;
+}
+
+public function addBand(Band $band): self
+{
+    if (!$this->bands->contains($band)) {
+        $this->bands[] = $band;
+        $band->addSong($this);
+    }
+
+    return $this;
+}
+
+public function removeBand(Band $band): self
+{
+    if ($this->bands->removeElement($band)) {
+        $band->removeSong($this);
+    }
+
+    return $this;
+}
 }
