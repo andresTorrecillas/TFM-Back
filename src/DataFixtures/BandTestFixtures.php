@@ -24,7 +24,7 @@ class BandTestFixtures extends Fixture
                 ->setUser($manager->find(BandUser::class, 1));
             $manager->persist($role);
             $name = "testBand-$i";
-            $song = new Song('VRS-'.($i + SongTestFixtures::NUMBER_SONGS));
+            $song = new Song("VRS-$i");
             $song->setTitle('Linked Song ' . $i);
             $manager->persist($song);
             $band = new Band();
