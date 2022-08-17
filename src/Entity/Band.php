@@ -25,10 +25,14 @@ class Band implements JsonSerializable
     #[ORM\ManyToMany(targetEntity: Song::class, inversedBy: 'bands')]
     private Collection $songs;
 
+    #[ORM\OneToMany(mappedBy: 'band', targetEntity: Concert::class, orphanRemoval: true)]
+    private $concerts;
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
         $this->songs = new ArrayCollection();
+        $this->concerts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,5 +112,35 @@ class Band implements JsonSerializable
             "id" => $this->id,
             "name" => $this->name
         ];
+    }
+
+    /**
+     * @return Collection<int, Concert>
+     */
+    public function getConcerts(): Collection
+    {
+        return $this->concerts;
+    }
+
+    public function addConcert(Concert $concert): self
+    {
+        if (!$this->concerts->contains($concert)) {
+            $this->concerts[] = $concert;
+            $concert->setBand($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConcert(Concert $concert): self
+    {
+        if ($this->concerts->removeElement($concert)) {
+            // set the owning side to null (unless already changed)
+            if ($concert->getBand() === $this) {
+                $concert->setBand(null);
+            }
+        }
+
+        return $this;
     }
 }
