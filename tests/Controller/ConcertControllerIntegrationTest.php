@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Controller\UserController;
+use App\DataFixtures\BandTestFixtures;
 use App\DataFixtures\ConcertTestFixtures;
 use App\DataFixtures\UserTestFixtures;
 use App\Entity\Concert;
@@ -27,8 +28,9 @@ class ConcertControllerIntegrationTest extends WebTestCase
         self::$client = $this->createClient();
         $databaseTool = self::$client->getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([
-            ConcertTestFixtures::class,
-            UserTestFixtures::class
+            UserTestFixtures::class,
+            BandTestFixtures::class,
+            ConcertTestFixtures::class
         ]);
         $session = new Session(new MockFileSessionStorage());
         self::$client->getContainer()->set('session', $session);
