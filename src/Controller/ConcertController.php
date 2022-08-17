@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Band;
 use App\Entity\Concert;
+use App\Service\AuthService;
 use App\Service\HTTPResponseHandler;
 use App\Service\OrmService;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,20 +20,40 @@ class ConcertController extends AbstractController
     public const ROOT_PATH = "/api/concert";
     private HTTPResponseHandler $httpHandler;
     private OrmService $orm;
+    private AuthService $authService;
 
-    public function __construct(HTTPResponseHandler $httpHandler, OrmService $orm)
+    public function __construct(HTTPResponseHandler $httpHandler, OrmService $orm, AuthService $authService)
     {
         $this->httpHandler = $httpHandler;
         $this->orm = $orm;
+        $this->authService = $authService;
     }
 
     /**
      * @Route("", name="app_list_concerts", methods={"GET"})]
      */
-    public function list(): Response
+    public function list(Request $request): Response
     {
-        $concertList = $this->orm->findAll(Concert::class);
+        $concertList = [];
+        if($request->query->has('band')){
+            $band = $request->query->get('band');
+            if($this->authService->isBandMember($band)){
+                $concertList = $this->getBandConcerts($band);
+            } else{
+                $this->httpHandler->addError(Response::HTTP_FORBIDDEN, "The band indicated is not one of yours");
+            }
+
+        } else{
+            $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "There's no specified band");
+        }
         return $this->httpHandler->generateResponse($concertList);
+    }
+
+    private function getBandConcerts(string $band_name): array
+    {
+        $band = $this->orm->findOneBy(['name' => $band_name], Band::class);
+        $concertList = $band->getConcerts();
+        return $concertList->isEmpty() ? [] : $concertList->getValues();
     }
 
     /**

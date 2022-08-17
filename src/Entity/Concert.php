@@ -36,6 +36,10 @@ class Concert implements JsonSerializable
     #[ORM\Column(type: 'string', length: 120)]
     private string $modality;
 
+    #[ORM\ManyToOne(targetEntity: Band::class, inversedBy: 'concerts')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $band;
+
     public function __construct()
     {
         $this->id = Base64Service::url_encode(uniqid(more_entropy: true));
@@ -202,5 +206,17 @@ class Concert implements JsonSerializable
             "address" => $this->address,
             "modality" => $this->modality
         ];
+    }
+
+    public function getBand(): ?Band
+    {
+        return $this->band;
+    }
+
+    public function setBand(?Band $band): self
+    {
+        $this->band = $band;
+
+        return $this;
     }
 }
