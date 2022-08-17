@@ -6,6 +6,7 @@ use App\Controller\UserController;
 use App\DataFixtures\BandTestFixtures;
 use App\DataFixtures\ConcertTestFixtures;
 use App\DataFixtures\UserTestFixtures;
+use App\Entity\Band;
 use App\Entity\Concert;
 use App\Controller\ConcertController;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
@@ -56,7 +57,7 @@ class ConcertControllerIntegrationTest extends WebTestCase
     }
 
     public function testGetIT(){
-        self::$client->request(Request::METHOD_GET, ConcertController::ROOT_PATH);
+        self::$client->request(Request::METHOD_GET, ConcertController::ROOT_PATH . '?band=testBand-1');
         $response = self::$client->getResponse();
         $concertList = json_decode($response->getContent(), true);
         $id = $concertList[0]['id'];
@@ -69,7 +70,7 @@ class ConcertControllerIntegrationTest extends WebTestCase
     }
 
     public function testGetListIT(){
-        self::$client->request(Request::METHOD_GET, ConcertController::ROOT_PATH);
+        self::$client->request(Request::METHOD_GET, ConcertController::ROOT_PATH . '?band=testBand-1');
         $response = self::$client->getResponse();
         self::assertResponseIsSuccessful();
         self::assertJson($response->getContent());
@@ -78,7 +79,8 @@ class ConcertControllerIntegrationTest extends WebTestCase
         foreach ($receivedConcertList as $concert){
             self::assertArrayHasKey("name", $concert);
             if(!str_contains($concert["name"], "A Eliminar")) {
-                self::assertStringEndsWith($index, $concert["name"]);
+                self::assertMatchesRegularExpression('/\d$/', $concert['name']);
+                self::assertLessThanOrEqual(count($receivedConcertList), explode(' ', $concert['name'])[1]);
             }
             self::assertArrayHasKey("id", $concert);
             self::assertArrayHasKey("color", $concert);
@@ -93,8 +95,10 @@ class ConcertControllerIntegrationTest extends WebTestCase
 
     public function testCreateIT()
     {
+        $band = new Band();
+        $band->setName('testBand-2');
         $concert = new Concert();
-        $concert->setName(self::$faker->sentence(3))->setAddress(self::$faker->address());
+        $concert->setName(self::$faker->sentence(3))->setAddress(self::$faker->address())->setBand($band);
         $jsonArray = json_decode(json_encode($concert), true);
         $jsonArray['date'] = [
             '_date' => $jsonArray['date']['date'],
@@ -116,8 +120,10 @@ class ConcertControllerIntegrationTest extends WebTestCase
 
     public function testCreateIdentityDbErrorIT()
     {
+        $band = new Band();
+        $band->setName('testBand-2');
         $concert = new Concert();
-        $concert->setName(self::$faker->sentence(3))->setAddress(self::$faker->address());
+        $concert->setName(self::$faker->sentence(3))->setAddress(self::$faker->address())->setBand($band);
         $jsonArray = json_decode(json_encode($concert), true);
         $jsonArray['date'] = [
             '_date' => $jsonArray['date']['date'],
@@ -145,8 +151,10 @@ class ConcertControllerIntegrationTest extends WebTestCase
 
     public function testCreateWrongFormatIT()
     {
+        $band = new Band();
+        $band->setName('testBand-2');
         $concert = new Concert();
-        $concert->setName(self::$faker->sentence(3));
+        $concert->setName(self::$faker->sentence(3))->setBand($band);
         self::$client->request(
             Request::METHOD_POST,
             ConcertController::ROOT_PATH,
@@ -159,7 +167,7 @@ class ConcertControllerIntegrationTest extends WebTestCase
         self::assertArrayHasKey("message", $receivedData[0], "JSON hasn't got the right format");
         self::assertArrayHasKey("statusCode", $receivedData[0], "JSON hasn't got the right format");
         $concert = new Concert();
-        $concert->setName(self::$faker->sentence(3));
+        $concert->setName(self::$faker->sentence(3))->setBand($band);
         $jsonArray = json_decode(json_encode($concert), true);
         $jsonArray['name'] = '';
         $jsonArray['date'] = [
@@ -181,7 +189,7 @@ class ConcertControllerIntegrationTest extends WebTestCase
     }
 
     public function testDeleteIT(){
-        self::$client->request(Request::METHOD_GET, ConcertController::ROOT_PATH);
+        self::$client->request(Request::METHOD_GET, ConcertController::ROOT_PATH . '?band=testBand-1');
         $response = self::$client->getResponse();
         $concertList = json_decode($response->getContent(), true);
         $i = 0;

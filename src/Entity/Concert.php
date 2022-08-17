@@ -38,7 +38,7 @@ class Concert implements JsonSerializable
 
     #[ORM\ManyToOne(targetEntity: Band::class, inversedBy: 'concerts')]
     #[ORM\JoinColumn(nullable: false)]
-    private $band;
+    private Band $band;
 
     public function __construct()
     {
@@ -46,7 +46,7 @@ class Concert implements JsonSerializable
         $this->color = '#00000000';
         $this->state = 'Created';
         $this->date = new DateTime();
-        $this->address = '';
+        $this->address = 'C/';
         $this->modality = 'Base';
     }
 
@@ -167,7 +167,7 @@ class Concert implements JsonSerializable
 
     public function initFromArray(array $data): bool
     {
-        foreach ($this as $key => &$value){
+        foreach ($this as $key => $value){
             if(!empty($data[$key])){
                 if(is_array($data[$key])){
                     try {
@@ -180,7 +180,7 @@ class Concert implements JsonSerializable
                         return false;
                     }
                 } else{
-                    $value = $data[$key];
+                    $this->$key = $data[$key];
                 }
             }
         }
@@ -204,7 +204,8 @@ class Concert implements JsonSerializable
             "state" => $this->state,
             "date" => $this->date,
             "address" => $this->address,
-            "modality" => $this->modality
+            "modality" => $this->modality,
+            "band" => $this->band->getName()
         ];
     }
 

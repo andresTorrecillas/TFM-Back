@@ -19,7 +19,7 @@ class ConcertTestFixtures extends Fixture
         $band = $manager->find(Band::class, 1);
         for ($i = 1; $i <= self::NUMBER_OF_CONCERTS; $i ++){
             $name = ($i == self::NUMBER_OF_CONCERTS)
-                ? "Z: A Eliminar"
+                ? "A Eliminar "
                 : "Concert " . $i;
             $concert = new Concert();
             $concert
