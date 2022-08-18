@@ -2,8 +2,10 @@
 
 namespace App\Service;
 
+use App\Entity\Band;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -78,7 +80,8 @@ class OrmService
         }
     }
 
-    public function remove(mixed $object): void{
+    public function remove(mixed $object): void
+    {
         try {
             $db = $this->orm->getRepository($object::class);
             $db->remove($object, true);
@@ -89,5 +92,20 @@ class OrmService
                 $e->getMessage()
             );
         }
+    }
+
+    public function findBandByName(string $name): Band
+    {
+        return $this->findOneBy(['name' => $name], Band::class);
+    }
+
+    public function findBandsByName(array $names): array
+    {
+        $bands = [];
+        $bandNames = array_unique($names);
+        foreach ($bandNames as $name){
+            $bands[$name] = $this->findBandByName($name);
+        }
+        return $bands;
     }
 }

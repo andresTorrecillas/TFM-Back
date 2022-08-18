@@ -134,7 +134,7 @@ class SongController extends AbstractController
     {
         $body = $request->getContent();
         $receivedSong = json_decode($body, true);
-        if (isset($receivedSong) && !empty($receivedSong["title"])) {
+        if (isset($receivedSong) && !empty($receivedSong["title"]) && !empty($receivedSong['bands']) && is_array($receivedSong['bands'])) {
             $song = new Song();
             $song->setTitle($receivedSong["title"]);
             if (!empty($receivedSong["lyrics"])) {
@@ -143,9 +143,23 @@ class SongController extends AbstractController
                     return null;
                 }
             }
-            return $song;
+            return $this->addBandsToSongByName($song, $receivedSong['bands']);
         }
         $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "No se ha enviado una canción con un formato adecuado");
         return null;
+    }
+
+    private function addBandsToSongByName(Song $song, array $bandNames): Song|null
+    {
+        $bands = $this->orm->findBandsByName($bandNames);
+        if(in_array(null, $bands)){
+            $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "Alguna de las bandas especificadas no está incluida en el sistema");
+            return null;
+        }
+
+        foreach ($bands as $band) {
+            $song->addBand($band);
+        }
+        return $song;
     }
 }
