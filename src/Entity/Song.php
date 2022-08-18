@@ -25,13 +25,14 @@ class Song implements JsonSerializable
     private ?string $lyrics;
 
     #[ORM\ManyToMany(targetEntity: Band::class, mappedBy: 'songs')]
-    private $bands;
+    private Collection $bands;
 
     public function __construct(string $id = null)
     {
         $this->id = $id?? Base64Service::url_encode(uniqid());
         $this->title = "";
         $this->lyrics = "";
+        $this->bands = new ArrayCollection();
     }
 
     /**
@@ -41,6 +42,7 @@ class Song implements JsonSerializable
     {
         return $this->id;
     }
+
     /**
      * @codeCoverageIgnore
      */
@@ -48,6 +50,7 @@ class Song implements JsonSerializable
     {
         return $this->title;
     }
+
     /**
      * @codeCoverageIgnore
      */
@@ -57,12 +60,45 @@ class Song implements JsonSerializable
 
         return $this;
     }
+
     /**
      * @codeCoverageIgnore
      */
     public function getLyrics(): ?string
     {
         return $this->lyrics;
+    }
+
+    /**
+     * @return Collection<int, Band>
+     */
+    public function getBands(): Collection
+    {
+        return $this->bands;
+    }
+
+    public function addBand(Band $band): self
+    {
+        if (!$this->bands->contains($band)) {
+            $this->bands[] = $band;
+            $band->addSong($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBand(Band $band): self
+    {
+        if ($this->bands->removeElement($band)) {
+            $band->removeSong($this);
+        }
+
+        return $this;
+    }
+
+    private function getBandNames(): array
+    {
+        return array_map(fn(Band $band): string => $band->getName(), $this->bands->toArray());
     }
 
     public function setLyrics(string $lyrics): bool
@@ -86,40 +122,14 @@ class Song implements JsonSerializable
         return str_replace([",","'"], ["\,", "\'"], $input);
     }
 
-#[ArrayShape(['id' => "int", 'title' => "string", 'lyrics' => "null|string"])]
+    #[ArrayShape(['id' => "int", 'title' => "string", 'lyrics' => "null|string", 'bands' => "string[]"])]
     public function jsonSerialize(): array
     {
         return array(
             'id'=>$this->id??0,
             'title'=>$this->title,
-            'lyrics'=>$this->lyrics
+            'lyrics'=>$this->lyrics,
+            'bands' => $this->getBandNames()
         );
     }
-
-/**
- * @return Collection<int, Band>
- */
-public function getBands(): Collection
-{
-    return $this->bands;
-}
-
-public function addBand(Band $band): self
-{
-    if (!$this->bands->contains($band)) {
-        $this->bands[] = $band;
-        $band->addSong($this);
-    }
-
-    return $this;
-}
-
-public function removeBand(Band $band): self
-{
-    if ($this->bands->removeElement($band)) {
-        $band->removeSong($this);
-    }
-
-    return $this;
-}
 }

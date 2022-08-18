@@ -7,6 +7,7 @@ use App\Controller\UserController;
 use App\DataFixtures\BandTestFixtures;
 use App\DataFixtures\SongTestFixtures;
 use App\DataFixtures\UserTestFixtures;
+use App\Entity\Band;
 use App\Entity\Song;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -97,8 +98,10 @@ class SongControllerIntegrationTest extends WebTestCase
 
     public function testCreateSongIT()
     {
+        $band = new Band();
+        $band->setName('testBand-2');
         $song = new Song(self::ID_PREFIX . "6");
-        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text());
+        $song->setTitle(self::$faker->sentence(3))->addBand($band)->setLyrics(self::$faker->text());
         self::$client->request(
             Request::METHOD_POST,
             SongController::ROOT_PATH,
@@ -153,8 +156,10 @@ class SongControllerIntegrationTest extends WebTestCase
 
     public function testCreateSongIdentityDbErrorIT()
     {
+        $band = new Band();
+        $band->setName('testBand-2');
         $song = new Song(self::ID_PREFIX . 7);
-        $song->setTitle(self::$faker->sentence(3))->setLyrics(self::$faker->text());
+        $song->setTitle(self::$faker->sentence(3))->addBand($band)->setLyrics(self::$faker->text());
         self::$client->request(
             Request::METHOD_POST,
             SongController::ROOT_PATH,
