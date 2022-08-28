@@ -117,7 +117,7 @@ class SongController extends AbstractController
         } else{
             $this->httpHandler->addError(Response::HTTP_NOT_FOUND, "No existe una canción con el id indicado");
         }
-        return $this->httpHandler->generateResponse($song);
+        return $this->httpHandler->generateResponse();
     }
 
     /**
