@@ -77,6 +77,14 @@ class Song implements JsonSerializable
         return $this->bands;
     }
 
+    public function setBands(array $bands): void
+    {
+        $this->bands = new ArrayCollection($bands);
+        foreach ($bands as $band){
+            $band->addSong($this);
+        }
+    }
+
     public function addBand(Band $band): self
     {
         if (!$this->bands->contains($band)) {

@@ -102,18 +102,22 @@ class SongController extends AbstractController
     public function patch(string $id, Request $request): Response
     {
         $song = $this->orm->find($id, Song::class);
-        if(!isset($song)){
-            $this->httpHandler->addError(Response::HTTP_NOT_FOUND, "No existe una canción con el id indicado");
-        } else{
+        if(isset($song)){
             $body = $request->getContent();
             $receivedSong = json_decode($body, true);
             $song
                 ->setTitle($receivedSong["title"]??$song->getTitle())
                 ->setLyrics($receivedSong["lyrics"]??$song->getLyrics());
-            $this->orm->persist($song);
-        }
+            if(isset($receivedSong["bands"]) && is_array($receivedSong["bands"])){
+                $bands = $this->orm->findBandsByName($receivedSong["bands"]);
 
-        return $this->httpHandler->generateResponse();
+                $song->setBands($bands);
+            }
+            $this->orm->persist($song);
+        } else{
+            $this->httpHandler->addError(Response::HTTP_NOT_FOUND, "No existe una canción con el id indicado");
+        }
+        return $this->httpHandler->generateResponse($song);
     }
 
     /**
