@@ -83,7 +83,7 @@ class Band implements JsonSerializable
     }
 
     /**
-     * @return Collection<int, song>
+     * @return Collection<int, Song>
      */
     public function getSongs(): Collection
     {

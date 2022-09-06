@@ -99,6 +99,10 @@ class OrmService
         return $this->findOneBy(['name' => $name], Band::class);
     }
 
+    /**
+     * @param array $names
+     * @return Band[]
+     */
     public function findBandsByName(array $names): array
     {
         $bands = [];
