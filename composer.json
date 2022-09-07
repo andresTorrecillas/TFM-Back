@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-mysqli": "*",
+        "composer/package-versions-deprecated": "1.11.99.5",
         "doctrine/annotations": "^1.13",
         "doctrine/doctrine-bundle": "^2.6",
         "doctrine/doctrine-migrations-bundle": "^3.2",
@@ -18,13 +19,13 @@
         "symfony/dotenv": "6.0.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.0.*",
+        "symfony/maker-bundle": "^1.42",
         "symfony/password-hasher": "6.0.*",
         "symfony/proxy-manager-bridge": "6.0.*",
         "symfony/runtime": "6.0.*",
         "symfony/security-bundle": "6.0.*",
         "symfony/uid": "6.0.*",
-        "symfony/yaml": "6.0.*",
-        "symfony/maker-bundle": "^1.42"
+        "symfony/yaml": "6.0.*"
     },
     "config": {
         "allow-plugins": {
