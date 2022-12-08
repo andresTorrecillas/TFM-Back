@@ -97,6 +97,23 @@ class ConcertController extends AbstractController
     }
 
     /**
+     * @Route("/{id}", name="update_concert", methods={"PATCH"})
+     */
+    public function patch(string $id, Request $request): Response
+    {
+        $concert = $this->orm->find($id, Concert::class);
+        if(isset($concert)){
+            $updatedConcert = $this->updateConcertFromRequestBody($request, $concert);
+            if(isset($updatedConcert)){
+                $this->orm->persist($concert);
+            }
+        } else{
+            $this->httpHandler->addError(Response::HTTP_NOT_FOUND, "No existe un concierto con el id indicado");
+        }
+        return $this->httpHandler->generateResponse();
+    }
+
+    /**
      * @Route("", name="options_concert", methods={"OPTIONS"})
      * @Route("/{id}", name="options_id_concert", methods={"OPTIONS"})
      */
@@ -131,5 +148,22 @@ class ConcertController extends AbstractController
         }
         $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "No se ha enviado una concierto con un formato adecuado");
         return null;
+    }
+
+    private function updateConcertFromRequestBody(Request $request, Concert $concert): Concert|null
+    {
+        $body = $request->getContent();
+        $receivedConcert = json_decode($body, true);
+        if(!$concert->initFromArray($receivedConcert)) {
+            $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "No se ha enviado un concierto con un formato adecuado");
+        }
+        $band = $this->orm->findOneBy(['name' => $receivedConcert['band']], Band::class);
+        if(isset($band)){
+            $concert->setBand($band);
+            return $concert;
+        } else{
+            $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "Alguna de las bandas indicadas no se encuentra incluida en el sistema");
+            return null;
+        }
     }
 }
