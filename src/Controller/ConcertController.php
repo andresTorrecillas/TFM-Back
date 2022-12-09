@@ -154,10 +154,12 @@ class ConcertController extends AbstractController
     {
         $body = $request->getContent();
         $receivedConcert = json_decode($body, true);
+        $bandStr = $receivedConcert['band'];
+        unset($receivedConcert['band']);
         if(!$concert->initFromArray($receivedConcert)) {
             $this->httpHandler->addError(Response::HTTP_BAD_REQUEST, "No se ha enviado un concierto con un formato adecuado");
         }
-        $band = $this->orm->findOneBy(['name' => $receivedConcert['band']], Band::class);
+        $band = $this->orm->findOneBy(['name' => $bandStr], Band::class);
         if(isset($band)){
             $concert->setBand($band);
             return $concert;
